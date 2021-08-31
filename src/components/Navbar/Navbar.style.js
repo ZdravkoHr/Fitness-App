@@ -24,7 +24,7 @@ const NavBarEl = styled.nav`
 		height: 2rem;
 	}
 
-	.menu-items > * {
+	.menu-items li > * {
 		padding: 5px 15px;
 		cursor: pointer;
 		margin-right: 5px;

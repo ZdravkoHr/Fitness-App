@@ -1,8 +1,14 @@
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useHistory } from 'react-router';
 import SignupForm from './Signup.style.js';
-import { auth } from 'firebase';
+import { auth } from '../../firebase';
+import { login } from 'store/slices/user';
 import { validateEmail, validatePassword, validateUsername } from 'validate';
 const Signup = () => {
+	const dispatch = useDispatch();
+	const history = useHistory();
+
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [username, setUsername] = useState('');
@@ -11,6 +17,23 @@ const Signup = () => {
 		password: '',
 		username: '',
 	});
+
+	const registerUser = async () => {
+		const { user } = await auth.createUserWithEmailAndPassword(email, password);
+		await user.updateProfile({
+			displayName: username,
+		});
+
+		dispatch(
+			login({
+				email,
+				password,
+				username,
+			})
+		);
+
+		history.push('/');
+	};
 
 	const submitHandler = e => {
 		try {
@@ -23,6 +46,7 @@ const Signup = () => {
 				password: '',
 				username: '',
 			});
+			registerUser();
 		} catch (err) {
 			const { message, cause } = err;
 			setInvalidTxt({

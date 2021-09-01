@@ -3,11 +3,12 @@ import { useDispatch } from 'react-redux';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { auth } from './firebase';
 import { login, logout } from 'store/slices/user';
-import './App.css';
+import './App.scss';
 import Navbar from 'components/Navbar';
 import Sidebar from 'components/Sidebar';
 import Home from 'views/Home';
 import Signup from 'views/Signup';
+import Signin from 'views/Signin';
 
 function App() {
 	const dispatch = useDispatch();
@@ -43,6 +44,9 @@ function App() {
 				<Switch>
 					<Route path='/' exact>
 						<Home />
+					</Route>
+					<Route path='/signin'>
+						<Signin />
 					</Route>
 					<Route path='/signup'>
 						<Signup />

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const SignupForm = styled.form`
+const SignForm = styled.form`
 	& {
 		max-width: 600px;
 		margin: auto;
@@ -8,11 +8,6 @@ const SignupForm = styled.form`
 
 	.form-group {
 		margin-bottom: 20px;
-
-		.invalid {
-			color: #b3a6a6;
-			font-size: 14px;
-		}
 	}
 
 	input {
@@ -23,7 +18,8 @@ const SignupForm = styled.form`
 		border: 0;
 	}
 
-	.btn-signup {
+	.btn-signup,
+	.btn-signin {
 		width: 100%;
 		background: #000;
 		color: #fff;
@@ -32,4 +28,4 @@ const SignupForm = styled.form`
 	}
 `;
 
-export default SignupForm;
+export default SignForm;

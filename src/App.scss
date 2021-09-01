@@ -16,3 +16,27 @@
 	font-size: 1.2rem;
 	line-height: 1.6;
 }
+
+.notification-box {
+	width: 100%;
+}
+
+:where(.signup, .signin).container {
+	.top {
+		margin-bottom: 25px;
+	}
+	h1 {
+		text-align: center;
+		font-size: 2rem;
+	}
+
+	.log-icons {
+		display: flex;
+		justify-content: center;
+		font-size: 19px;
+		margin: 15px 0;
+		& > * {
+			cursor: pointer;
+		}
+	}
+}

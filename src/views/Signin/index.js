@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router';
-import SignForm from '../Form.style.js';
+import SignForm from '../Form.style';
 import { firebase, auth } from '../../firebase';
 import { login } from 'store/slices/user';
-import { validateEmail, validatePassword, validateUsername } from 'validate';
+import { validateEmail, validatePassword } from 'validate';
 import NotificationBox from 'components/Notifications/NotificationBox.js';
 const Signup = () => {
 	const NOTIFICATION_CLOSE_TIME = 2000;
@@ -15,7 +15,6 @@ const Signup = () => {
 	const [closeTimer, setCloseTimer] = useState(null);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
-	const [username, setUsername] = useState('');
 	const [errorTxt, setErrorTxt] = useState('');
 
 	const showError = error => {
@@ -34,22 +33,21 @@ const Signup = () => {
 		history.push('/');
 	};
 
-	const registerUser = async () => {
-		setFail(true);
+	const submitHandler = async e => {
 		try {
-			const { user } = await auth.createUserWithEmailAndPassword(
-				email,
-				password
-			);
-			await user.updateProfile({
-				displayName: username,
-			});
+			e.preventDefault();
+			closeTimer && clearTimeout(closeTimer);
 
+			validateEmail(email);
+			validatePassword(password);
+
+			const { user } = await auth.signInWithEmailAndPassword(email, password);
 			dispatch(
 				login({
-					email,
-					password,
-					username,
+					email: user.email,
+					password: user.password,
+					displayName: user.displayName,
+					uid: user.uid,
 				})
 			);
 
@@ -59,24 +57,10 @@ const Signup = () => {
 		}
 	};
 
-	const submitHandler = e => {
-		try {
-			e.preventDefault();
-			closeTimer && clearTimeout(closeTimer);
-
-			validateEmail(email);
-			validatePassword(password);
-			validateUsername(username);
-			registerUser();
-		} catch (err) {
-			showError(err);
-		}
-	};
-
 	return (
-		<main className='signup container'>
+		<main className='signin container'>
 			<div className='top'>
-				<h1>Sign up</h1>
+				<h1>Sign in</h1>
 				<div className='log-icons'>
 					<div className='google' onClick={googleSignup}>
 						<i class='fab fa-google'></i>
@@ -106,16 +90,9 @@ const Signup = () => {
 						onChange={e => setPassword(e.target.value)}
 					/>
 				</div>
-				<div className='form-group'>
-					<input
-						type='text'
-						placeholder='Username'
-						value={username}
-						onChange={e => setUsername(e.target.value)}
-					/>
-				</div>
+
 				<div className='buttons'>
-					<button className='btn btn-signup'>Sign up</button>
+					<button className='btn btn-signin'>Sign in</button>
 				</div>
 			</SignForm>
 		</main>

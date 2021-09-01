@@ -1,4 +1,5 @@
 import { Menu } from '@material-ui/icons';
+import { auth } from '../../firebase';
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from 'store/slices/user';
@@ -11,7 +12,10 @@ const Navbar = ({ openSidebar }) => {
 	const { pathname: route } = useLocation();
 
 	const signHandler = () => {
-		user && dispatch(logout());
+		if (user) {
+			auth.signOut();
+			dispatch(logout());
+		}
 	};
 
 	return (
@@ -21,7 +25,9 @@ const Navbar = ({ openSidebar }) => {
 			</div>
 			<ul className='menu-items'>
 				<li
-					className={`sign-in-out-button ${route === 'signin' ? 'active' : ''}`}
+					className={`sign-in-out-button ${
+						route === '/signin' ? 'active' : ''
+					}`}
 				>
 					<Link to='/signin' onClick={signHandler}>
 						{user ? 'Sign out' : 'Sign in'}
@@ -29,7 +35,9 @@ const Navbar = ({ openSidebar }) => {
 				</li>
 
 				{!user && (
-					<li className={`signup-button ${route === 'signup' ? 'active' : ''}`}>
+					<li
+						className={`signup-button ${route === '/signup' ? 'active' : ''}`}
+					>
 						<Link to='/signup'>Sign up</Link>
 					</li>
 				)}

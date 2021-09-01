@@ -31,11 +31,15 @@ const NavBarEl = styled.nav`
 		border-radius: 5px;
 		font-size: 1rem;
 
-		&.active,
 		&:hover {
 			background: #fff;
 			color: #101032;
 		}
+	}
+
+	.menu-items li.active > * {
+		background: #fff;
+		color: #101032;
 	}
 `;
 

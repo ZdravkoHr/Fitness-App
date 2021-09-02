@@ -7,6 +7,7 @@ const SidebarEl = styled.aside`
 		top: 0;
 		min-width: 200px;
 		transition: 0.2s ease-in;
+		z-index: 9999999;
 	}
 
 	&.hidden {
@@ -40,7 +41,7 @@ const SidebarEl = styled.aside`
 				padding: 15px;
 				transition: padding 1s;
 				&:hover {
-					background: #29268e;
+					background: var(--primary-color);
 					padding-left: 20px;
 				}
 			}

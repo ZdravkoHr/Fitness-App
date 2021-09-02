@@ -4,18 +4,41 @@ const SignForm = styled.form`
 	& {
 		max-width: 600px;
 		margin: auto;
+		background-color: #fff;
+		padding: 14px;
 	}
 
 	.form-group {
 		margin-bottom: 20px;
 	}
 
+	.input-wrapper {
+		display: flex;
+		align-items: center;
+		border: 1px solid #ccc;
+		margin-bottom: 10px;
+		padding-left: 10px;
+		svg {
+			fill: #bababa;
+		}
+
+		.visibility {
+			cursor: pointer;
+			padding-right: 5px;
+			margin-left: 5px;
+			display: flex;
+			align-items: center;
+		}
+	}
+
 	input {
 		display: block;
 		width: 100%;
 		padding: 10px;
-		margin-bottom: 10px;
+		padding-left: 5px;
+		background: transparent;
 		border: 0;
+		outline: none;
 	}
 
 	.btn-signup,
@@ -23,8 +46,16 @@ const SignForm = styled.form`
 		width: 100%;
 		background: #000;
 		color: #fff;
-		border-radius: 15px;
+		border-radius: 5px;
 		font-size: 16px;
+		border: 2px solid #000;
+		transition: 0.5s;
+		outline: none;
+
+		&:hover {
+			background-color: transparent;
+			color: #000;
+		}
 	}
 `;
 

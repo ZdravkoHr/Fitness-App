@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 const NotificationBoxEl = styled.div`
 	& {
-		background: var(--green);
+		background: green;
 		padding: 8px;
 		margin-bottom: 20px;
 		border-radius: 5px;

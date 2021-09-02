@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router';
 import SignForm from '../Form.style';
 import { firebase, auth } from '../../firebase';
 import { login } from 'store/slices/user';
 import { validateEmail, validatePassword } from 'validate';
+import { Email, Lock, Visibility, VisibilityOff } from '@material-ui/icons';
+import { showError as activateError } from '../formFunctions';
 import NotificationBox from 'components/Notifications/NotificationBox.js';
 const Signup = () => {
-	const NOTIFICATION_CLOSE_TIME = 2000;
 	const dispatch = useDispatch();
 	const history = useHistory();
 
@@ -16,21 +17,33 @@ const Signup = () => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [errorTxt, setErrorTxt] = useState('');
+	const [showPassword, setShowPassword] = useState(false);
+
+	useEffect(() => {
+		console.log(auth.currentUser);
+		auth.currentUser && history.push('/');
+	}, []);
 
 	const showError = error => {
-		setFail(true);
-		setErrorTxt(error.message);
-		const closeTimer = setTimeout(() => {
-			setFail(false);
-		}, NOTIFICATION_CLOSE_TIME);
-
-		setCloseTimer(closeTimer);
+		activateError(error, setFail, setErrorTxt, setCloseTimer);
 	};
 
-	const googleSignup = async () => {
+	useEffect(() => {
+		auth
+			.getRedirectResult()
+			.then(userCredential => {
+				if ('credential' in userCredential) {
+					history.push('/');
+				}
+			})
+			.catch(err => {
+				showError(err);
+			});
+	}, []);
+
+	const signinWithGoogle = () => {
 		const provider = new firebase.auth.GoogleAuthProvider();
-		await auth.signInWithRedirect(provider);
-		history.push('/');
+		auth.signInWithRedirect(provider);
 	};
 
 	const submitHandler = async e => {
@@ -62,7 +75,7 @@ const Signup = () => {
 			<div className='top'>
 				<h1>Sign in</h1>
 				<div className='log-icons'>
-					<div className='google' onClick={googleSignup}>
+					<div className='google' onClick={signinWithGoogle}>
 						<i class='fab fa-google'></i>
 					</div>
 				</div>
@@ -75,20 +88,32 @@ const Signup = () => {
 			/>
 			<SignForm onSubmit={submitHandler}>
 				<div className='form-group'>
-					<input
-						type='email'
-						placeholder='Email address'
-						value={email}
-						onChange={e => setEmail(e.target.value)}
-					/>
+					<div className='input-wrapper'>
+						<Email />
+						<input
+							type='email'
+							placeholder='Email address'
+							value={email}
+							onChange={e => setEmail(e.target.value)}
+						/>
+					</div>
 				</div>
 				<div className='form-group'>
-					<input
-						type='password'
-						placeholder='Password'
-						value={password}
-						onChange={e => setPassword(e.target.value)}
-					/>
+					<div className='input-wrapper'>
+						<Lock />
+						<input
+							type={showPassword ? 'text' : 'password'}
+							placeholder='Password'
+							value={password}
+							onChange={e => setPassword(e.target.value)}
+						/>
+						<span
+							className='visibility'
+							onClick={() => setShowPassword(!showPassword)}
+						>
+							{showPassword ? <VisibilityOff /> : <Visibility />}
+						</span>
+					</div>
 				</div>
 
 				<div className='buttons'>

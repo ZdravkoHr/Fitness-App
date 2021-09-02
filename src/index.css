@@ -7,9 +7,14 @@
 	box-sizing: border-box;
 }
 
+:root {
+	--primary-color: #29268e;
+	--dark-color: #101032;
+}
+
 body {
 	min-height: 100vh;
-	background: linear-gradient(to bottom, #101032, #29268e) no-repeat;
+	background: radial-gradient(var(--primary-color), var(--dark-color)) no-repeat;
 	color: #fff;
 	font-family: 'Lusitana', serif;
 }

@@ -1,15 +1,15 @@
+import { useState, useEffect } from 'react';
 import { Menu } from '@material-ui/icons';
 import { auth } from '../../firebase';
 import { Link, useLocation } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { logout } from 'store/slices/user';
 import NavBarEl from './Navbar.style';
-import { userSelector } from 'store';
 
 const Navbar = ({ openSidebar }) => {
 	const dispatch = useDispatch();
-	const { user } = useSelector(userSelector);
 	const { pathname: route } = useLocation();
+	const user = auth.currentUser;
 
 	const signHandler = () => {
 		if (user) {
@@ -26,7 +26,7 @@ const Navbar = ({ openSidebar }) => {
 			<ul className='menu-items'>
 				<li
 					className={`sign-in-out-button ${
-						route === '/signin' ? 'active' : ''
+						route === '/signin' && !user ? 'active' : ''
 					}`}
 				>
 					<Link to='/signin' onClick={signHandler}>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router';
+import { Link } from 'react-router-dom';
 import SignForm from '../Form.style';
 import { firebase, auth } from '../../firebase';
 import { login } from 'store/slices/user';
@@ -115,6 +116,10 @@ const Signup = () => {
 						</span>
 					</div>
 				</div>
+
+				<Link to='/resetpassword' className='forgotten-password'>
+					Forgotten password?
+				</Link>
 
 				<div className='buttons'>
 					<button className='btn btn-signin'>Sign in</button>

@@ -8,6 +8,14 @@ const SignForm = styled.form`
 		padding: 14px;
 	}
 
+	.forgotten-password {
+		display: block;
+		color: #2e2a2a;
+		text-align: center;
+		cursor: pointer;
+		margin: 10px 0;
+	}
+
 	.form-group {
 		margin-bottom: 20px;
 	}
@@ -41,8 +49,7 @@ const SignForm = styled.form`
 		outline: none;
 	}
 
-	.btn-signup,
-	.btn-signin {
+	.buttons .btn {
 		width: 100%;
 		background: #000;
 		color: #fff;

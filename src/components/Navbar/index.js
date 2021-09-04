@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { Menu } from '@material-ui/icons';
 import { auth } from '../../firebase';
 import { Link, useLocation } from 'react-router-dom';

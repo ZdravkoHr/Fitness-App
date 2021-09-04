@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { userSelector } from 'store';
+import { useDispatch } from 'react-redux';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { auth } from './firebase';
 import { login, logout } from 'store/slices/user';
@@ -10,6 +9,7 @@ import Sidebar from 'components/Sidebar';
 import Home from 'views/Home';
 import Signup from 'views/Signup';
 import Signin from 'views/Signin';
+import ResetPassword from 'views/ResetPassword';
 
 function App() {
 	const dispatch = useDispatch();
@@ -52,6 +52,9 @@ function App() {
 					</Route>
 					<Route path='/signup'>
 						<Signup />
+					</Route>
+					<Route path='/resetpassword'>
+						<ResetPassword />
 					</Route>
 				</Switch>
 			</Router>

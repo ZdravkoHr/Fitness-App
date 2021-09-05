@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useHistory } from 'react-router';
 import SignForm from '../Form.style';
 import { auth } from '../../firebase';
 import { validateEmail } from 'validate';
@@ -9,7 +8,6 @@ import { showError as activateError } from '../formFunctions';
 import NotificationBox from 'components/Notifications/NotificationBox.js';
 const ResetPassword = () => {
 	const dispatch = useDispatch();
-	const history = useHistory();
 
 	const [success, setSuccess] = useState(false);
 	const [fail, setFail] = useState(false);
@@ -42,19 +40,6 @@ const ResetPassword = () => {
 			</>
 		);
 	};
-
-	useEffect(() => {
-		auth
-			.getRedirectResult()
-			.then(userCredential => {
-				if ('credential' in userCredential) {
-					history.push('/');
-				}
-			})
-			.catch(err => {
-				showError(err);
-			});
-	}, []);
 
 	const submitHandler = async e => {
 		try {

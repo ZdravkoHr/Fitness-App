@@ -3,10 +3,12 @@ import { useDispatch } from 'react-redux';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { auth } from './firebase';
 import { login, logout } from 'store/slices/user';
+import { history } from 'helpers';
 import './App.scss';
 import Navbar from 'components/Navbar';
 import Sidebar from 'components/Sidebar';
 import Home from 'views/Home';
+import Workouts from 'views/Workouts';
 import Signup from 'views/Signup';
 import Signin from 'views/Signin';
 import ResetPassword from 'views/ResetPassword';
@@ -22,22 +24,28 @@ function App() {
 			if (userAuth) {
 				setUser({
 					email: userAuth.email,
-					password: userAuth.password,
 					displayName: userAuth.displayName,
 					uid: userAuth.uid,
 				});
-				dispatch(login(user));
+
 				return;
 			}
 
 			setUser(null);
-			dispatch(logout());
 		});
 	}, []);
 
+	useEffect(() => {
+		if (user) {
+			dispatch(login(user));
+			return;
+		}
+		dispatch(logout(false));
+	}, [user]);
+
 	return (
 		<div className='App'>
-			<Router>
+			<Router history={history}>
 				<Navbar openSidebar={() => setIsSidebarOpened(true)} />
 				<Sidebar
 					opened={isSidebarOpened}
@@ -46,6 +54,9 @@ function App() {
 				<Switch>
 					<Route path='/' exact>
 						<Home />
+					</Route>
+					<Route path='/workouts' exact>
+						<Workouts />
 					</Route>
 					<Route path='/signin'>
 						<Signin />

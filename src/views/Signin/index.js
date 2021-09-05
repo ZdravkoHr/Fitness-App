@@ -6,10 +6,11 @@ import SignForm from '../Form.style';
 import { firebase, auth } from '../../firebase';
 import { login } from 'store/slices/user';
 import { validateEmail, validatePassword } from 'validate';
+import { redirectIfLogged } from 'validate';
 import { Email, Lock, Visibility, VisibilityOff } from '@material-ui/icons';
 import { showError as activateError } from '../formFunctions';
 import NotificationBox from 'components/Notifications/NotificationBox.js';
-const Signup = () => {
+const Signin = () => {
 	const dispatch = useDispatch();
 	const history = useHistory();
 
@@ -21,8 +22,7 @@ const Signup = () => {
 	const [showPassword, setShowPassword] = useState(false);
 
 	useEffect(() => {
-		console.log(auth.currentUser);
-		auth.currentUser && history.push('/');
+		redirectIfLogged();
 	}, []);
 
 	const showError = error => {
@@ -30,16 +30,11 @@ const Signup = () => {
 	};
 
 	useEffect(() => {
-		auth
-			.getRedirectResult()
-			.then(userCredential => {
-				if ('credential' in userCredential) {
-					history.push('/');
-				}
-			})
-			.catch(err => {
-				showError(err);
-			});
+		try {
+			redirectIfLogged();
+		} catch (err) {
+			showError(err);
+		}
 	}, []);
 
 	const signinWithGoogle = () => {
@@ -77,7 +72,7 @@ const Signup = () => {
 				<h1>Sign in</h1>
 				<div className='log-icons'>
 					<div className='google' onClick={signinWithGoogle}>
-						<i class='fab fa-google'></i>
+						<i className='fab fa-google'></i>
 					</div>
 				</div>
 			</div>
@@ -129,4 +124,4 @@ const Signup = () => {
 	);
 };
 
-export default Signup;
+export default Signin;

@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { history } from 'helpers';
 
 const userSlice = createSlice({
 	name: 'user',
@@ -8,10 +9,13 @@ const userSlice = createSlice({
 	reducers: {
 		login: (state, { payload }) => {
 			state.user = { ...payload };
+			history.push('/');
 		},
 
-		logout: state => {
+		logout: (state, { payload = true }) => {
+			console.log('LOGGING OUT!', payload);
 			state.user = null;
+			payload && history.push('signin');
 		},
 	},
 });

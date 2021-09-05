@@ -11,6 +11,9 @@ const Sidebar = ({ opened, closeSidebar }) => {
 			<ul className='links'>
 				<li>
 					<Link to='/'>Home</Link>
+				</li>{' '}
+				<li>
+					<Link to='/workouts'>Workouts</Link>
 				</li>
 			</ul>
 		</SidebarEl>

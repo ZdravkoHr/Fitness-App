@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useHistory } from 'react-router';
 import SignForm from '../Form.style.js';
 import { firebase, auth } from '../../firebase';
 import { login } from 'store/slices/user';
@@ -12,11 +11,11 @@ import {
 	VisibilityOff,
 } from '@material-ui/icons';
 import { validateEmail, validatePassword, validateUsername } from 'validate';
+import { redirectIfLogged } from 'validate';
 import { showError as activateError } from '../formFunctions';
 import NotificationBox from 'components/Notifications/NotificationBox.js';
 const Signup = () => {
 	const dispatch = useDispatch();
-	const history = useHistory();
 
 	const [fail, setFail] = useState(false);
 	const [closeTimer, setCloseTimer] = useState(null);
@@ -31,17 +30,16 @@ const Signup = () => {
 	};
 
 	useEffect(() => {
-		auth
-			.getRedirectResult()
-			.then(userCredential => {
-				if ('credential' in userCredential) {
-					history.push('/');
-				}
-			})
-			.catch(err => {
-				showError(err);
-			});
+		redirectIfLogged();
 	}, []);
+
+	// useEffect(() => {
+	// 	try {
+	// 		redirectIfLogged();
+	// 	} catch (err) {
+	// 		showError(err);
+	// 	}
+	// }, []);
 
 	const signupWithGoogle = () => {
 		const provider = new firebase.auth.GoogleAuthProvider();
@@ -66,8 +64,6 @@ const Signup = () => {
 					username,
 				})
 			);
-
-			history.push('/');
 		} catch (err) {
 			showError(err);
 		}

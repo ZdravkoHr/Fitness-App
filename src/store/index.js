@@ -9,6 +9,7 @@ const store = configureStore({
 });
 
 const userSelector = state => state.user;
+const getState = store.getState;
 
-export { userSelector };
+export { userSelector, getState };
 export default store;

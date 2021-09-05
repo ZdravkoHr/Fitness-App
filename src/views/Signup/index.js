@@ -11,7 +11,7 @@ import {
 	VisibilityOff,
 } from '@material-ui/icons';
 import { validateEmail, validatePassword, validateUsername } from 'validate';
-import { redirectIfLogged } from 'validate';
+import { redirectIfLogged } from 'helpers';
 import { showError as activateError } from '../formFunctions';
 import NotificationBox from 'components/Notifications/NotificationBox.js';
 const Signup = () => {

@@ -1,4 +1,3 @@
-import store from 'store';
 const validateEmail = email => {
 	if (!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(email)) {
 		throw new Error('Your email is invalid', {

@@ -6,7 +6,7 @@ import SignForm from '../Form.style';
 import { firebase, auth } from '../../firebase';
 import { login } from 'store/slices/user';
 import { validateEmail, validatePassword } from 'validate';
-import { redirectIfLogged } from 'validate';
+import { redirectIfLogged } from 'helpers';
 import { Email, Lock, Visibility, VisibilityOff } from '@material-ui/icons';
 import { showError as activateError } from '../formFunctions';
 import NotificationBox from 'components/Notifications/NotificationBox.js';

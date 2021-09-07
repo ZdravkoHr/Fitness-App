@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useHistory } from 'react-router';
 import { Link } from 'react-router-dom';
 import SignForm from '../Form.style';
+import Spinner from 'components/Spinner';
 import { firebase, auth } from '../../firebase';
 import { login } from 'store/slices/user';
 import { validateEmail, validatePassword } from 'validate';
-import { redirectIfLogged } from 'helpers';
+import { history } from 'helpers';
+import store from 'store';
 import { Email, Lock, Visibility, VisibilityOff } from '@material-ui/icons';
 import { showError as activateError } from '../formFunctions';
 import NotificationBox from 'components/Notifications/NotificationBox.js';
 const Signin = () => {
 	const dispatch = useDispatch();
-	const history = useHistory();
 
+	const [isLogged, setIsLogged] = useState(null);
+	const [isLoading, setIsLoading] = useState(true);
 	const [fail, setFail] = useState(false);
 	const [closeTimer, setCloseTimer] = useState(null);
 	const [email, setEmail] = useState('');
@@ -22,20 +24,23 @@ const Signin = () => {
 	const [showPassword, setShowPassword] = useState(false);
 
 	useEffect(() => {
-		redirectIfLogged();
+		if (isLogged !== undefined) {
+			setIsLoading(false);
+		}
+		if (isLogged) {
+			history.push('/');
+		}
+	}, [isLogged]);
+
+	useEffect(() => {
+		store.subscribe(() => {
+			setIsLogged(store.getState().logged);
+		});
 	}, []);
 
 	const showError = error => {
 		activateError(error, setFail, setErrorTxt, setCloseTimer);
 	};
-
-	useEffect(() => {
-		try {
-			redirectIfLogged();
-		} catch (err) {
-			showError(err);
-		}
-	}, []);
 
 	const signinWithGoogle = () => {
 		const provider = new firebase.auth.GoogleAuthProvider();
@@ -51,20 +56,28 @@ const Signin = () => {
 			validatePassword(password);
 
 			const { user } = await auth.signInWithEmailAndPassword(email, password);
-			dispatch(
-				login({
+
+			const dispatchInfo = {
+				user: {
 					email: user.email,
 					password: user.password,
 					displayName: user.displayName,
 					uid: user.uid,
-				})
-			);
+				},
+				redirect: true,
+			};
+
+			dispatch(login(dispatchInfo));
 
 			history.push('/');
 		} catch (err) {
 			showError(err);
 		}
 	};
+
+	if (isLoading) {
+		return <Spinner />;
+	}
 
 	return (
 		<main className='signin container'>

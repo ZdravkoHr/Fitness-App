@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import SignForm from '../Form.style.js';
+import Spinner from 'components/Spinner';
 import { firebase, auth } from '../../firebase';
 import { login } from 'store/slices/user';
+import store from 'store';
 import {
 	Email,
 	Lock,
@@ -11,12 +13,14 @@ import {
 	VisibilityOff,
 } from '@material-ui/icons';
 import { validateEmail, validatePassword, validateUsername } from 'validate';
-import { redirectIfLogged } from 'helpers';
+import { history } from 'helpers';
 import { showError as activateError } from '../formFunctions';
 import NotificationBox from 'components/Notifications/NotificationBox.js';
 const Signup = () => {
 	const dispatch = useDispatch();
 
+	const [isLogged, setIsLogged] = useState(null);
+	const [isLoading, setIsLoading] = useState(true);
 	const [fail, setFail] = useState(false);
 	const [closeTimer, setCloseTimer] = useState(null);
 	const [email, setEmail] = useState('');
@@ -30,16 +34,19 @@ const Signup = () => {
 	};
 
 	useEffect(() => {
-		redirectIfLogged();
-	}, []);
+		if (isLogged !== undefined && isLogged !== null) {
+			setIsLoading(false);
+		}
+		if (isLogged) {
+			history.push('/');
+		}
+	}, [isLogged]);
 
-	// useEffect(() => {
-	// 	try {
-	// 		redirectIfLogged();
-	// 	} catch (err) {
-	// 		showError(err);
-	// 	}
-	// }, []);
+	useEffect(() => {
+		store.subscribe(() => {
+			setIsLogged(store.getState().logged);
+		});
+	}, []);
 
 	const signupWithGoogle = () => {
 		const provider = new firebase.auth.GoogleAuthProvider();
@@ -57,13 +64,16 @@ const Signup = () => {
 				displayName: username,
 			});
 
-			dispatch(
-				login({
+			const dispatchInfo = {
+				user: {
 					email,
 					password,
 					username,
-				})
-			);
+				},
+				redirect: true,
+			};
+
+			dispatch(dispatchInfo);
 		} catch (err) {
 			showError(err);
 		}
@@ -82,6 +92,10 @@ const Signup = () => {
 			showError(err);
 		}
 	};
+
+	if (isLoading) {
+		return <Spinner />;
+	}
 
 	return (
 		<main className='signup container'>

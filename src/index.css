@@ -8,8 +8,8 @@
 }
 
 :root {
-	--primary-color: #29268e;
-	--dark-color: #101032;
+	--primary-color: #4386ce;
+	--dark-color: #185a9d;
 }
 
 body {
@@ -44,4 +44,11 @@ a {
 	border: 0;
 	padding: 8px 10px;
 	outline: none;
+}
+
+.absolute-center {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }

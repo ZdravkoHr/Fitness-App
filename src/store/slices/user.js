@@ -5,16 +5,18 @@ const userSlice = createSlice({
 	name: 'user',
 	initialState: {
 		user: null,
+		logged: false,
 	},
 	reducers: {
 		login: (state, { payload }) => {
-			state.user = { ...payload };
-			history.push('/');
+			state.user = { ...payload.user };
+			state.logged = true;
+			payload.redirect && history.push('/');
 		},
 
 		logout: (state, { payload = true }) => {
-			console.log('LOGGING OUT!', payload);
 			state.user = null;
+			state.logged = false;
 			payload && history.push('signin');
 		},
 	},

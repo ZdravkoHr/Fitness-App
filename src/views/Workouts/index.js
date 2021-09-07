@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { userSelector } from 'store';
 import { db, auth } from '../../firebase';
 
 const Workouts = () => {
-	const [workouts, setWorkouts] = useState(null);
-	const email = auth.currentUser?.email;
+	const [workouts, setWorkouts] = useState([]);
+	const { user } = useSelector(userSelector);
 
-	useEffect(() => {
-		console.log('yo');
-		if (!email) return;
-		const result = db.collection(email);
-		console.log('result ', result);
-	}, []);
+	if (!user) {
+		return (
+			<main className='container workouts'>
+				<h2>Log in to see your workouts</h2>
+			</main>
+		);
+	}
 
 	return <main className='container workouts'></main>;
 };

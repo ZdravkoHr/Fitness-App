@@ -1,14 +1,15 @@
 import { Menu } from '@material-ui/icons';
 import { auth } from '../../firebase';
 import { Link, useLocation } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { userSelector } from 'store';
 import { logout } from 'store/slices/user';
 import NavBarEl from './Navbar.style';
 
 const Navbar = ({ openSidebar }) => {
 	const dispatch = useDispatch();
 	const { pathname: route } = useLocation();
-	const user = auth.currentUser;
+	const { user } = useSelector(userSelector);
 
 	const signHandler = () => {
 		if (user) {

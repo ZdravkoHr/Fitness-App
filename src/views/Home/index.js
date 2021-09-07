@@ -1,6 +1,7 @@
-import { auth } from '../../firebase';
+import { useSelector } from 'react-redux';
+import { userSelector } from 'store';
 const Home = () => {
-	const user = auth.currentUser;
+	const { user } = useSelector(userSelector);
 
 	return (
 		<main className='container home'>

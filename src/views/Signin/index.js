@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import SignForm from '../Form.style';
 import Spinner from 'components/Spinner';
@@ -7,14 +7,13 @@ import { firebase, auth } from '../../firebase';
 import { login } from 'store/slices/user';
 import { validateEmail, validatePassword } from 'validate';
 import { history } from 'helpers';
-import store from 'store';
+import { userSelector } from 'store';
 import { Email, Lock, Visibility, VisibilityOff } from '@material-ui/icons';
 import { showError as activateError } from '../formFunctions';
 import NotificationBox from 'components/Notifications/NotificationBox.js';
 const Signin = () => {
 	const dispatch = useDispatch();
 
-	const [isLogged, setIsLogged] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [fail, setFail] = useState(false);
 	const [closeTimer, setCloseTimer] = useState(null);
@@ -23,20 +22,17 @@ const Signin = () => {
 	const [errorTxt, setErrorTxt] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
 
-	useEffect(() => {
-		if (isLogged !== undefined) {
-			setIsLoading(false);
-		}
-		if (isLogged) {
-			history.push('/');
-		}
-	}, [isLogged]);
+	const { logged } = useSelector(userSelector);
 
 	useEffect(() => {
-		store.subscribe(() => {
-			setIsLogged(store.getState().logged);
-		});
-	}, []);
+		console.log(logged);
+		if (logged === true || logged === false) {
+			setIsLoading(false);
+		}
+		if (logged === true) {
+			history.push('/');
+		}
+	}, [logged]);
 
 	const showError = error => {
 		activateError(error, setFail, setErrorTxt, setCloseTimer);
@@ -57,17 +53,14 @@ const Signin = () => {
 
 			const { user } = await auth.signInWithEmailAndPassword(email, password);
 
-			const dispatchInfo = {
-				user: {
+			dispatch(
+				login({
 					email: user.email,
 					password: user.password,
 					displayName: user.displayName,
 					uid: user.uid,
-				},
-				redirect: true,
-			};
-
-			dispatch(login(dispatchInfo));
+				})
+			);
 
 			history.push('/');
 		} catch (err) {

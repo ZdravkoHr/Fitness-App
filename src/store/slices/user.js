@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { history } from 'helpers';
 
 const userSlice = createSlice({
 	name: 'user',
@@ -9,15 +8,13 @@ const userSlice = createSlice({
 	},
 	reducers: {
 		login: (state, { payload }) => {
-			state.user = { ...payload.user };
+			state.user = { ...payload };
 			state.logged = true;
-			payload.redirect && history.push('/');
 		},
 
-		logout: (state, { payload = true }) => {
+		logout: state => {
 			state.user = null;
 			state.logged = false;
-			payload && history.push('signin');
 		},
 	},
 });

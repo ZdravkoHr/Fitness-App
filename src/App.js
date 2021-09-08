@@ -21,26 +21,19 @@ function App() {
 
 	useEffect(() => {
 		auth.onAuthStateChanged(userAuth => {
-			if (userAuth) {
-				setUser({
-					email: userAuth.email,
-					displayName: userAuth.displayName,
-					uid: userAuth.uid,
-				});
-
-				return;
-			}
-
-			setUser(null);
+			if (!userAuth) return;
+			setUser({
+				email: userAuth.email,
+				displayName: userAuth.displayName,
+				uid: userAuth.uid,
+			});
 		});
 	}, []);
 
 	useEffect(() => {
 		if (user) {
 			dispatch(login(user));
-			return;
 		}
-		dispatch(logout(false));
 	}, [user]);
 
 	return (

@@ -10,6 +10,7 @@
 :root {
 	--primary-color: #4386ce;
 	--dark-color: #185a9d;
+	--success-color: #28a745;
 }
 
 body {
@@ -42,8 +43,22 @@ a {
 .btn {
 	cursor: pointer;
 	border: 0;
-	padding: 8px 10px;
+	padding: 8px 14px;
 	outline: none;
+	font-weight: 400;
+
+	&-green {
+		background-color: var(--success-color);
+		color: #fff;
+
+		&:hover {
+			background-color: darken(#28a745, 10%);
+		}
+	}
+
+	&-rounded {
+		border-radius: 5px;
+	}
 }
 
 .absolute-center {
@@ -51,4 +66,16 @@ a {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+}
+
+.modal-wrapper {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.6);
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }

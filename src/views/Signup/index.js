@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import SignForm from '../Form.style.js';
 import Spinner from 'components/Spinner';
 import { firebase, auth } from '../../firebase';
 import { login } from 'store/slices/user';
-import store from 'store';
+import { userSelector } from 'store';
 import {
 	Email,
 	Lock,
@@ -29,24 +29,20 @@ const Signup = () => {
 	const [errorTxt, setErrorTxt] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
 
+	const { logged } = useSelector(userSelector);
+
+	useEffect(() => {
+		if (logged === true || logged === false) {
+			setIsLoading(false);
+		}
+		if (logged === true) {
+			history.push('/');
+		}
+	}, [logged]);
+
 	const showError = error => {
 		activateError(error, setFail, setErrorTxt, setCloseTimer);
 	};
-
-	useEffect(() => {
-		if (isLogged !== undefined && isLogged !== null) {
-			setIsLoading(false);
-		}
-		if (isLogged) {
-			history.push('/');
-		}
-	}, [isLogged]);
-
-	useEffect(() => {
-		store.subscribe(() => {
-			setIsLogged(store.getState().logged);
-		});
-	}, []);
 
 	const signupWithGoogle = () => {
 		const provider = new firebase.auth.GoogleAuthProvider();
@@ -64,16 +60,13 @@ const Signup = () => {
 				displayName: username,
 			});
 
-			const dispatchInfo = {
-				user: {
+			dispatch(
+				login({
 					email,
 					password,
 					username,
-				},
-				redirect: true,
-			};
-
-			dispatch(dispatchInfo);
+				})
+			);
 		} catch (err) {
 			showError(err);
 		}

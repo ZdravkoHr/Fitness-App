@@ -35,7 +35,7 @@ const Workouts = () => {
 		<>
 			<Modal heading={'Add a workout'}>
 				<div>
-					<WorkoutForm />
+					<WorkoutForm workout={{ name: 'push', exercises: ['bench press'] }} />
 				</div>
 			</Modal>
 			<WorkoutsEl className='container workouts'>

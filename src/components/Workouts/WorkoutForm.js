@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import DeleteIcon from '@material-ui/icons/Delete';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import uuid from 'react-uuid';
 
 const WorkoutForm = ({ workout }) => {
 	const [workoutInfo, setWorkoutInfo] = useState({
@@ -7,7 +10,17 @@ const WorkoutForm = ({ workout }) => {
 	});
 
 	const [workoutName, setWorkoutName] = useState(workout?.name || '');
-	const [exercisesCount, setExercisesCount] = useState(0);
+	const [inputFields, setInputFields] = useState([]);
+
+	const addExercise = () => {
+		workoutInfo.exercises.push('');
+		updateInputFields();
+	};
+
+	const removeExercise = index => {
+		workoutInfo.exercises.splice(index, 1);
+		updateInputFields();
+	};
 
 	const changeExercise = ({ target: { value } }, index) => {
 		setWorkoutInfo({
@@ -20,6 +33,37 @@ const WorkoutForm = ({ workout }) => {
 		});
 	};
 
+	const inputGroup = (number, value) => {
+		return (
+			<div className='form-group exercises-group' key={uuid()}>
+				<span className='number'>{number}</span>
+				<input
+					type='text'
+					value={value}
+					onChange={e => changeExercise(e, number - 1)}
+				/>
+				<span
+					className='remove-exercise'
+					onClick={() => removeExercise(number - 1)}
+				>
+					<DeleteIcon />
+				</span>
+			</div>
+		);
+	};
+
+	const updateInputFields = () => {
+		const inputFields = workoutInfo.exercises.map((exercise, index) => {
+			return inputGroup(index + 1, exercise);
+		});
+
+		setInputFields(inputFields);
+	};
+
+	useEffect(() => {
+		updateInputFields();
+	}, []);
+
 	return (
 		<form>
 			<div className='form-group name-group'>
@@ -31,21 +75,12 @@ const WorkoutForm = ({ workout }) => {
 					onChange={e => setWorkoutName(e.target)}
 				/>
 			</div>
-			<div className='form-group exercises-group'>
-				{workoutInfo.exercises.map((exercise, index) => {
-					setExercisesCount(index + 1);
-					return (
-						<>
-							<span className='number'>{exercisesCount}</span>
-							<input
-								type='text'
-								value={exercise}
-								onChange={e => changeExercise(e, index)}
-							/>
-						</>
-					);
-				})}
-			</div>
+
+			{inputFields.map(field => field)}
+
+			<span className='add-exercises' onClick={addExercise}>
+				<AddCircleOutlineIcon />
+			</span>
 		</form>
 	);
 };

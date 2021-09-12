@@ -1,25 +1,37 @@
 import { useState, useEffect } from 'react';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import SaveIcon from '@material-ui/icons/Save';
 import uuid from 'react-uuid';
+import { useDispatch } from 'react-redux';
+import { addWorkout } from 'store/slices/user';
 
-const WorkoutForm = ({ workout }) => {
+const WorkoutForm = ({ workout, mode }) => {
+	const dispatch = useDispatch();
 	const [workoutInfo, setWorkoutInfo] = useState({
-		...workout,
+		name: workout?.name || '',
 		exercises: workout?.exercises || [],
 	});
 
-	const [workoutName, setWorkoutName] = useState(workout?.name || '');
 	const [inputFields, setInputFields] = useState([]);
+	const [exercises, setExercises] = useState(workoutInfo.exercises);
+	const [saved, setSaved] = useState(false);
 
 	const addExercise = () => {
-		workoutInfo.exercises.push('');
-		updateInputFields();
+		setWorkoutInfo({
+			...workoutInfo,
+			exercises: [...workoutInfo.exercises, { id: uuid(), name: '' }],
+		});
 	};
 
 	const removeExercise = index => {
-		workoutInfo.exercises.splice(index, 1);
-		updateInputFields();
+		setWorkoutInfo({
+			...workoutInfo,
+			exercises: [
+				...workoutInfo.exercises.slice(0, index),
+				...workoutInfo.exercises.slice(index + 1),
+			],
+		});
 	};
 
 	const changeExercise = ({ target: { value } }, index) => {
@@ -27,19 +39,33 @@ const WorkoutForm = ({ workout }) => {
 			...workoutInfo,
 			exercises: [
 				...workoutInfo.exercises.slice(0, index),
-				value.trim(),
-				...workoutInfo.slice(index + 1),
+				{ id: workoutInfo.exercises[index].id, name: value },
+				...workoutInfo.exercises.slice(index + 1),
 			],
+		});
+	};
+
+	const saveChanges = async e => {
+		e.preventDefault();
+
+		const newExercises = workoutInfo.exercises.filter(Boolean).map(exercise => {
+			return { ...exercise, name: exercise.name.trim() };
+		});
+
+		setSaved(true);
+		setWorkoutInfo({
+			...workoutInfo,
+			exercises: newExercises,
 		});
 	};
 
 	const inputGroup = (number, value) => {
 		return (
-			<div className='form-group exercises-group' key={uuid()}>
+			<div className='form-group exercises-group' key={value.id}>
 				<span className='number'>{number}</span>
 				<input
 					type='text'
-					value={value}
+					value={value.name}
 					onChange={e => changeExercise(e, number - 1)}
 				/>
 				<span
@@ -62,17 +88,26 @@ const WorkoutForm = ({ workout }) => {
 
 	useEffect(() => {
 		updateInputFields();
-	}, []);
+	}, [workoutInfo.exercises]);
+
+	useEffect(() => {
+		if (!saved) return;
+		if (mode === 'adding') {
+			dispatch(addWorkout(workoutInfo));
+		}
+	}, [workoutInfo]);
 
 	return (
-		<form>
+		<form onSubmit={saveChanges}>
 			<div className='form-group name-group'>
 				<label htmlFor='name'>Workout Name</label>
 				<input
 					type='text'
 					id='name'
-					value={workoutName}
-					onChange={e => setWorkoutName(e.target)}
+					value={workoutInfo.name}
+					onChange={e =>
+						setWorkoutInfo({ ...workoutInfo, name: e.target.value })
+					}
 				/>
 			</div>
 
@@ -81,6 +116,14 @@ const WorkoutForm = ({ workout }) => {
 			<span className='add-exercises' onClick={addExercise}>
 				<AddCircleOutlineIcon />
 			</span>
+
+			<button
+				className={`btn btn-${
+					mode === 'adding' ? 'btn-add-workout' : 'btn-save-workout'
+				}`}
+			>
+				<SaveIcon />
+			</button>
 		</form>
 	);
 };

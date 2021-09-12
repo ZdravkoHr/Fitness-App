@@ -5,6 +5,10 @@ const userSlice = createSlice({
 	initialState: {
 		user: null,
 		logged: false,
+		appData: {
+			workouts: [],
+		},
+		dbAppData: {},
 	},
 	reducers: {
 		login: (state, { payload }) => {
@@ -16,9 +20,19 @@ const userSlice = createSlice({
 			state.user = null;
 			state.logged = false;
 		},
+		addWorkout: (state, { payload }) => {
+			state.appData.workouts.push(payload);
+		},
+		setAppData: (state, { payload }) => {
+			state.appData = payload;
+		},
+		setDbAppData: (state, { payload }) => {
+			state.dbAppData = payload;
+		},
 	},
 });
 
 export default userSlice.reducer;
 
-export const { login, logout } = userSlice.actions;
+export const { login, logout, addWorkout, setAppData, setDbAppData } =
+	userSlice.actions;

@@ -1,1 +1,2 @@
-CI= npm run build
+[build]
+command = “CI= npm run build”

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { removeWorkout } from 'store/slices/user';
 import { userSelector } from 'store';
-import uuid from 'react-uuid';
 import { db } from '../../firebase';
-import { capitalize, areWorkoutsDifferent } from 'helpers';
+import { areWorkoutsDifferent } from 'helpers';
 import WorkoutsEl from './Workouts.style';
 import WorkoutForm from 'components/Workouts/WorkoutForm';
 import Modal from 'components/Modal';
@@ -28,10 +28,27 @@ const Workouts = () => {
 
 	const addHandler = () => {
 		setIsModalOpened(true);
+		setMode('adding');
+	};
+
+	const deleteWorkout = (e, id) => {
+		e.stopPropagation();
+		dispatch(removeWorkout(id));
+	};
+
+	const editWorkout = (e, id) => {
+		const workout = workouts.find(item => item.id === id);
+		setMode('editing');
+		setIsModalOpened(true);
+		setCurrentWorkout(workout);
+	};
+
+	const closeModal = () => {
+		setIsModalOpened(false);
+		setCurrentWorkout({});
 	};
 
 	const updateHandler = () => {
-		console.log(areWorkoutsDifferent(dbWorkouts, workouts));
 		if (!areWorkoutsDifferent(dbWorkouts, workouts)) return;
 		db.collection('users').doc(user.uid).set({
 			workouts,
@@ -71,7 +88,7 @@ const Workouts = () => {
 			{isModalOpened ? (
 				<Modal
 					heading={mode === 'adding' ? 'Add a workout' : 'Edit workout'}
-					closeCb={() => setIsModalOpened(false)}
+					closeCb={closeModal}
 				>
 					<div>
 						<WorkoutForm workout={currentWorkout} mode={mode} />
@@ -85,7 +102,10 @@ const Workouts = () => {
 				<h1>Your Workouts</h1>
 				<section className='workouts-list'>
 					<header className='top'>
-						<h2>You have {workouts.length} workouts</h2>
+						<h2>
+							You have {workouts.length}{' '}
+							{workouts.length === 1 ? 'workout' : 'workouts'}
+						</h2>
 						<button className='btn btn-green btn-rounded' onClick={addHandler}>
 							Add Workout +
 						</button>
@@ -94,8 +114,18 @@ const Workouts = () => {
 					<article className='workout-boxes'>
 						{workouts.map(workout => {
 							return (
-								<div className='single-workout' key={uuid()}>
-									{capitalize(workout.name)}
+								<div
+									className='single-workout'
+									key={workout.id}
+									onClick={e => editWorkout(e, workout.id)}
+								>
+									{workout.name}
+									<div
+										className='close-icon'
+										onClick={e => deleteWorkout(e, workout.id)}
+									>
+										&times;
+									</div>
 								</div>
 							);
 						})}

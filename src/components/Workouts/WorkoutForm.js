@@ -4,17 +4,17 @@ import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import SaveIcon from '@material-ui/icons/Save';
 import uuid from 'react-uuid';
 import { useDispatch } from 'react-redux';
-import { addWorkout } from 'store/slices/user';
+import { addWorkout, editWorkout } from 'store/slices/user';
 
 const WorkoutForm = ({ workout, mode }) => {
 	const dispatch = useDispatch();
 	const [workoutInfo, setWorkoutInfo] = useState({
-		name: workout?.name || '',
-		exercises: workout?.exercises || [],
+		id: workout.id || uuid(),
+		name: workout.name || '',
+		exercises: workout.exercises || [],
 	});
 
 	const [inputFields, setInputFields] = useState([]);
-	const [exercises, setExercises] = useState(workoutInfo.exercises);
 	const [saved, setSaved] = useState(false);
 
 	const addExercise = () => {
@@ -94,7 +94,10 @@ const WorkoutForm = ({ workout, mode }) => {
 		if (!saved) return;
 		if (mode === 'adding') {
 			dispatch(addWorkout(workoutInfo));
+			return;
 		}
+
+		dispatch(editWorkout(workoutInfo));
 	}, [workoutInfo]);
 
 	return (

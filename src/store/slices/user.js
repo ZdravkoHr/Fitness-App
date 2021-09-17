@@ -20,19 +20,23 @@ const userSlice = createSlice({
 			state.user = null;
 			state.logged = false;
 		},
-		addWorkout: (state, { payload }) => {
-			state.appData.workouts.push(payload);
-		},
+
 		removeWorkout: (state, { payload }) => {
 			state.appData.workouts = state.appData.workouts.filter(
 				workout => workout.id !== payload
 			);
 		},
-		editWorkout: (state, { payload }) => {
-			console.log('payload: ', payload);
+		modifyWorkouts: (state, { payload }) => {
+			const workoutIndex = state.appData.workouts.findIndex(
+				workout => workout.id === payload.id
+			);
+
+			if (workoutIndex === -1) {
+				state.appData.workouts.push(payload);
+				return;
+			}
+
 			state.appData.workouts = state.appData.workouts.map(workout => {
-				console.log(workout.id, payload.id);
-				console.log(workout.id === payload.id);
 				return workout.id === payload.id ? payload : workout;
 			});
 
@@ -52,7 +56,7 @@ export default userSlice.reducer;
 export const {
 	login,
 	logout,
-	addWorkout,
+	modifyWorkouts,
 	removeWorkout,
 	editWorkout,
 	setAppData,

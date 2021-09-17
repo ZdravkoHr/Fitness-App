@@ -1,19 +1,18 @@
 import { useState, useEffect } from 'react';
-import DeleteIcon from '@material-ui/icons/Delete';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-import SaveIcon from '@material-ui/icons/Save';
-import uuid from 'react-uuid';
 import { useDispatch } from 'react-redux';
-//import { addWorkout, editWorkout } from 'store/slices/user';
+import uuid from 'react-uuid';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Panel from 'components/Panel';
+import WorkoutMain from './WorkoutMain.style';
+import { modifyWorkouts } from 'store/slices/user';
 
-const WorkoutForm = ({ workout, mode }) => {
+const SingleWorkout = ({ workout, opened }) => {
 	const dispatch = useDispatch();
 	const [workoutInfo, setWorkoutInfo] = useState({
 		id: workout.id || uuid(),
 		name: workout.name || '',
 		exercises: workout.exercises || [],
 	});
-
 	const [inputFields, setInputFields] = useState([]);
 	const [saved, setSaved] = useState(false);
 
@@ -45,20 +44,6 @@ const WorkoutForm = ({ workout, mode }) => {
 		});
 	};
 
-	const saveChanges = async e => {
-		e.preventDefault();
-
-		const newExercises = workoutInfo.exercises.filter(Boolean).map(exercise => {
-			return { ...exercise, name: exercise.name.trim() };
-		});
-
-		setSaved(true);
-		setWorkoutInfo({
-			...workoutInfo,
-			exercises: newExercises,
-		});
-	};
-
 	const inputGroup = (number, value) => {
 		return (
 			<div className='form-group exercises-group' key={value.id}>
@@ -86,49 +71,72 @@ const WorkoutForm = ({ workout, mode }) => {
 		setInputFields(inputFields);
 	};
 
+	const saveChanges = async e => {
+		e.preventDefault();
+
+		const newExercises = workoutInfo.exercises.filter(Boolean).map(exercise => {
+			return { ...exercise, name: exercise.name.trim() };
+		});
+
+		setSaved(true);
+		setWorkoutInfo({
+			...workoutInfo,
+			exercises: newExercises,
+		});
+	};
+
 	useEffect(() => {
 		updateInputFields();
 	}, [workoutInfo.exercises]);
 
 	useEffect(() => {
 		if (!saved) return;
-		if (mode === 'adding') {
-			//	dispatch(addWorkout(workoutInfo));
-			return;
-		}
-
-		//	dispatch(editWorkout(workoutInfo));
+		dispatch(modifyWorkouts(workoutInfo));
 	}, [workoutInfo]);
 
+	const PanelHeader = () => {
+		return (
+			<>
+				<p className='workout-name'>{workoutInfo.name}</p>
+
+				<div className='icons'></div>
+			</>
+		);
+	};
+
+	const PanelMain = () => {
+		return (
+			<WorkoutMain onSubmit={saveChanges}>
+				<div className='form-group name-group'>
+					<label htmlFor='name'>Workout Name</label>
+					<input
+						type='text'
+						id='name'
+						value={workoutInfo.name}
+						onChange={e =>
+							setWorkoutInfo({ ...workoutInfo, name: e.target.value })
+						}
+					/>
+				</div>
+
+				{inputFields.map(field => field)}
+
+				<span className='add-exercise' onClick={addExercise}>
+					Add Exercise
+				</span>
+
+				<button className='btn btn-save'>Save</button>
+			</WorkoutMain>
+		);
+	};
+
 	return (
-		<form onSubmit={saveChanges}>
-			<div className='form-group name-group'>
-				<label htmlFor='name'>Workout Name</label>
-				<input
-					type='text'
-					id='name'
-					value={workoutInfo.name}
-					onChange={e =>
-						setWorkoutInfo({ ...workoutInfo, name: e.target.value })
-					}
-				/>
-			</div>
-
-			{inputFields.map(field => field)}
-
-			<span className='add-exercises' onClick={addExercise}>
-				<AddCircleOutlineIcon />
-			</span>
-
-			<button
-				className={`btn btn-${
-					mode === 'adding' ? 'btn-add-workout' : 'btn-save-workout'
-				}`}
-			>
-				<SaveIcon />
-			</button>
-		</form>
+		<Panel
+			headerContent={PanelHeader()}
+			mainContent={PanelMain()}
+			opened={opened}
+		/>
 	);
 };
 
-export default WorkoutForm;
+export default SingleWorkout;

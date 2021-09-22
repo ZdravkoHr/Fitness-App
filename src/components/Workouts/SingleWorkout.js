@@ -92,6 +92,10 @@ const SingleWorkout = ({ workout, opened }) => {
 	useEffect(() => {
 		if (!saved) return;
 		dispatch(modifyWorkouts(workoutInfo));
+		// neeeded to prevent unnecessary redux dispatches
+		setTimeout(() => {
+			setSaved(false);
+		});
 	}, [workoutInfo]);
 
 	const PanelHeader = () => {

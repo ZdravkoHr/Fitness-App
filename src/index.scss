@@ -59,6 +59,10 @@ a {
 	&-rounded {
 		border-radius: 5px;
 	}
+
+	&:disabled {
+		background-color: #676666;
+	}
 }
 
 .absolute-center {

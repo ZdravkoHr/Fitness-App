@@ -122,7 +122,11 @@ const Workouts = () => {
 							You have {workouts.length}{' '}
 							{workouts.length === 1 ? 'workout' : 'workouts'}
 						</h2>
-						<button className='btn btn-green btn-rounded' onClick={addHandler}>
+						<button
+							className='btn btn-green btn-rounded'
+							onClick={addHandler}
+							disabled={workouts.length !== userWorkouts.length}
+						>
 							Add Workout +
 						</button>
 					</header>

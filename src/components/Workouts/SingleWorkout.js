@@ -4,7 +4,7 @@ import uuid from 'react-uuid';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Panel from 'components/Panel';
 import WorkoutMain from './WorkoutMain.style';
-import { modifyWorkouts } from 'store/slices/user';
+import { modifyWorkouts, removeWorkout } from 'store/slices/user';
 
 const SingleWorkout = ({ workout, opened }) => {
 	const dispatch = useDispatch();
@@ -44,6 +44,10 @@ const SingleWorkout = ({ workout, opened }) => {
 		});
 	};
 
+	const deleteWorkout = e => {
+		dispatch(removeWorkout(workout.id));
+	};
+
 	const inputGroup = (number, value) => {
 		return (
 			<div className='form-group exercises-group' key={value.id}>
@@ -74,7 +78,7 @@ const SingleWorkout = ({ workout, opened }) => {
 	const saveChanges = async e => {
 		e.preventDefault();
 
-		const newExercises = workoutInfo.exercises.filter(Boolean).map(exercise => {
+		const newExercises = workoutInfo.exercises.map(exercise => {
 			return { ...exercise, name: exercise.name.trim() };
 		});
 
@@ -103,7 +107,9 @@ const SingleWorkout = ({ workout, opened }) => {
 			<>
 				<p className='workout-name'>{workoutInfo.name}</p>
 
-				<div className='icons'></div>
+				<div className='icons'>
+					<DeleteIcon onClick={deleteWorkout} />
+				</div>
 			</>
 		);
 	};

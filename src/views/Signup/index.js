@@ -50,7 +50,6 @@ const Signup = () => {
 	};
 
 	const registerUser = async () => {
-		setFail(true);
 		try {
 			const { user } = await auth.createUserWithEmailAndPassword(
 				email,

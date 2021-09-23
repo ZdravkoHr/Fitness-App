@@ -2,7 +2,6 @@ import { useSelector } from 'react-redux';
 import { userSelector } from 'store';
 const Home = () => {
 	const { user } = useSelector(userSelector);
-
 	return (
 		<main className='container home'>
 			<section className='welcome'>

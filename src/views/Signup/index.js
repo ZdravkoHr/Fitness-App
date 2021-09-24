@@ -55,6 +55,7 @@ const Signup = () => {
 				email,
 				password
 			);
+
 			await user.updateProfile({
 				displayName: username,
 			});
@@ -62,8 +63,8 @@ const Signup = () => {
 			dispatch(
 				login({
 					email,
-					password,
-					username,
+					displayName: username,
+					uid: user.uid,
 				})
 			);
 		} catch (err) {

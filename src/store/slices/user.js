@@ -48,6 +48,7 @@ const userSlice = createSlice({
 			console.log(state.appData.workouts);
 		},
 		setAppData: (state, { payload }) => {
+			console.log('payload: ', payload);
 			state.appData = payload;
 		},
 		setDbAppData: (state, { payload }) => {

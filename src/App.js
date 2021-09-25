@@ -43,8 +43,8 @@ function App() {
 		const snapshot = await db.collection('users').doc(user.uid).get('workouts');
 		const data = snapshot.data();
 
-		dispatch(setAppData(data));
-		dispatch(setDbAppData(data));
+		data && dispatch(setAppData(data));
+		data && dispatch(setDbAppData(data));
 	};
 
 	useEffect(() => {

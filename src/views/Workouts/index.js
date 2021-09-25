@@ -74,10 +74,6 @@ const Workouts = () => {
 	};
 
 	useEffect(() => {
-		console.log('workouts: ', workouts);
-	}, [workouts]);
-
-	useEffect(() => {
 		setWorkouts(userWorkouts);
 	}, [userWorkouts]);
 

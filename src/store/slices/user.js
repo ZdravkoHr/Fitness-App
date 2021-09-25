@@ -1,14 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+const dataForApp = {
+	workouts: [],
+};
+
 const userSlice = createSlice({
 	name: 'user',
 	initialState: {
 		user: null,
 		logged: false,
 		appData: {
-			workouts: [],
+			...dataForApp,
 		},
-		dbAppData: {},
+		dbAppData: {
+			...dataForApp,
+		},
 	},
 	reducers: {
 		login: (state, { payload }) => {
@@ -48,7 +54,6 @@ const userSlice = createSlice({
 			console.log(state.appData.workouts);
 		},
 		setAppData: (state, { payload }) => {
-			console.log('payload: ', payload);
 			state.appData = payload;
 		},
 		setDbAppData: (state, { payload }) => {

@@ -2,21 +2,35 @@ import { useState, useRef, useEffect } from 'react';
 
 const DEBOUNCE_TIME = 500;
 
-const DebounceInput = ({ initialValue, onChangeCb, ...rest }) => {
+const DebounceInput = ({
+	initialValue,
+	onChangeCb,
+	timerNotifier,
+	...rest
+}) => {
 	const [inputValue, setInputValue] = useState(initialValue);
 	const timerID = useRef(null);
 
 	const clearTimer = () => {
-		timerID.current && clearTimeout(timerID.current);
+		if (!timerID.current) return;
+		clearTimeout(timerID.current);
+		timerNotifier && timerNotifier(false);
 	};
 
 	useEffect(() => {
-		clearTimer();
+		// clearTimer();
 		timerID.current = setTimeout(() => {
 			onChangeCb(inputValue);
+			timerNotifier && timerNotifier(false);
 		}, DEBOUNCE_TIME);
 
-		// return () => {};
+		console.log('timer notifier is: ', timerNotifier);
+		console.log('onChangeCb is: ', onChangeCb);
+		timerNotifier && timerNotifier(true);
+
+		return () => {
+			clearTimer();
+		};
 	}, [inputValue]);
 
 	return (

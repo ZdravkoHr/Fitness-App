@@ -61,7 +61,6 @@ const Workouts = () => {
 	};
 
 	const updateHandler = () => {
-		console.log('dbworkouts: ', dbWorkouts);
 		if (!areWorkoutsDifferent(dbWorkouts, workouts)) return;
 		db.collection('users').doc(user.uid).set({
 			workouts,

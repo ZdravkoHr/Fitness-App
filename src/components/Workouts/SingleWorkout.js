@@ -16,6 +16,9 @@ const SingleWorkout = ({ workout, opened }) => {
 		exercises: workout.exercises || [],
 	});
 	const [inputFields, setInputFields] = useState([]);
+	const [isTimerRunning, setIsTimerRunning] = useState(false);
+	const [runningTimers, setRunningTimers] = useState({});
+
 	const [saved, setSaved] = useState(false);
 
 	const addExercise = () => {
@@ -48,11 +51,17 @@ const SingleWorkout = ({ workout, opened }) => {
 		areWorkoutsDifferent(workoutInfo, newWorkout) && setWorkoutInfo(newWorkout);
 	};
 
+	const changeTimers = (isRunning, id) => {
+		console.log('notified with: ', isRunning, id);
+		setRunningTimers({ ...runningTimers, [id]: isRunning });
+	};
+
 	const deleteWorkout = e => {
 		dispatch(removeWorkout(workout.id));
 	};
 
 	const inputGroup = (number, value) => {
+		setRunningTimers({ ...runningTimers, [value.id]: false });
 		return (
 			<div className='form-group exercises-group' key={value.id}>
 				<span className='number'>{number}</span>
@@ -61,6 +70,9 @@ const SingleWorkout = ({ workout, opened }) => {
 					initialValue={value.name}
 					onChangeCb={inputValue => {
 						changeExercise(inputValue, number - 1);
+					}}
+					timerNotifier={isRunning => {
+						changeTimers(isRunning, value.id);
 					}}
 				/>
 				<span
@@ -94,6 +106,11 @@ const SingleWorkout = ({ workout, opened }) => {
 			exercises: newExercises,
 		});
 	};
+
+	useEffect(() => {
+		const isTimerRunning = Object.values(runningTimers).some(Boolean);
+		setIsTimerRunning(isTimerRunning);
+	}, [runningTimers]);
 
 	useEffect(() => {
 		updateInputFields();
@@ -151,6 +168,7 @@ const SingleWorkout = ({ workout, opened }) => {
 		<Panel
 			headerContent={PanelHeader()}
 			mainContent={PanelMain()}
+			disabledClick={isTimerRunning}
 			opened={opened}
 		/>
 	);

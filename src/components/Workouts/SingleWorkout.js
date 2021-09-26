@@ -3,7 +3,9 @@ import { useDispatch } from 'react-redux';
 import uuid from 'react-uuid';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Panel from 'components/Panel';
+import DebounceInput from 'components/DebounceInput';
 import WorkoutMain from './WorkoutMain.style';
+import { areWorkoutsDifferent } from 'helpers';
 import { modifyWorkouts, removeWorkout } from 'store/slices/user';
 
 const SingleWorkout = ({ workout, opened }) => {
@@ -33,15 +35,17 @@ const SingleWorkout = ({ workout, opened }) => {
 		});
 	};
 
-	const changeExercise = ({ target: { value } }, index) => {
-		setWorkoutInfo({
+	const changeExercise = (value, index) => {
+		const newWorkout = {
 			...workoutInfo,
 			exercises: [
 				...workoutInfo.exercises.slice(0, index),
 				{ id: workoutInfo.exercises[index].id, name: value },
 				...workoutInfo.exercises.slice(index + 1),
 			],
-		});
+		};
+
+		areWorkoutsDifferent(workoutInfo, newWorkout) && setWorkoutInfo(newWorkout);
 	};
 
 	const deleteWorkout = e => {
@@ -52,10 +56,12 @@ const SingleWorkout = ({ workout, opened }) => {
 		return (
 			<div className='form-group exercises-group' key={value.id}>
 				<span className='number'>{number}</span>
-				<input
+				<DebounceInput
 					type='text'
-					value={value.name}
-					onChange={e => changeExercise(e, number - 1)}
+					initialValue={value.name}
+					onChangeCb={inputValue => {
+						changeExercise(inputValue, number - 1);
+					}}
 				/>
 				<span
 					className='remove-exercise'
@@ -94,7 +100,7 @@ const SingleWorkout = ({ workout, opened }) => {
 	}, [workoutInfo.exercises]);
 
 	useEffect(() => {
-		if (!saved) return;
+		//if (!saved) return;
 		dispatch(modifyWorkouts(workoutInfo));
 		// neeeded to prevent unnecessary redux dispatches
 		setTimeout(() => {
@@ -119,13 +125,14 @@ const SingleWorkout = ({ workout, opened }) => {
 			<WorkoutMain onSubmit={saveChanges}>
 				<div className='form-group name-group'>
 					<label htmlFor='name'>Workout Name</label>
-					<input
+					<DebounceInput
 						type='text'
 						id='name'
-						value={workoutInfo.name}
-						onChange={e =>
-							setWorkoutInfo({ ...workoutInfo, name: e.target.value })
-						}
+						initialValue={workoutInfo.name}
+						onChangeCb={inputValue => {
+							inputValue !== workoutInfo.name &&
+								setWorkoutInfo({ ...workoutInfo, name: inputValue.trim() });
+						}}
 					/>
 				</div>
 

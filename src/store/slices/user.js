@@ -45,8 +45,6 @@ const userSlice = createSlice({
 			state.appData.workouts = state.appData.workouts.map(workout => {
 				return workout.id === payload.id ? payload : workout;
 			});
-
-			console.log(state.appData.workouts);
 		},
 		setAppData: (state, { payload }) => {
 			state.appData = payload;

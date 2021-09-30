@@ -51,29 +51,41 @@ const SingleWorkout = ({ workout, opened }) => {
 		areWorkoutsDifferent(workoutInfo, newWorkout) && setWorkoutInfo(newWorkout);
 	};
 
-	const changeTimers = (isRunning, id) => {
-		console.log('notified with: ', isRunning, id);
-		setRunningTimers({ ...runningTimers, [id]: isRunning });
+	const changeTimers = (isRunning, id, value) => {
+		setRunningTimers(() => {
+			console.log('id: ', id);
+			// console.log(runningTimers);
+			// console.log({ ...runningTimers, [id]: isRunning });
+			return { ...runningTimers, [id]: isRunning };
+		});
 	};
 
 	const deleteWorkout = e => {
 		dispatch(removeWorkout(workout.id));
 	};
 
-	const inputGroup = (number, value) => {
-		setRunningTimers({ ...runningTimers, [value.id]: false });
+	const inputGroup = (number, value, timerCb) => {
+		//setRunningTimers({ ...runningTimers, [value.id]: false });
+
 		return (
 			<div className='form-group exercises-group' key={value.id}>
 				<span className='number'>{number}</span>
-				<DebounceInput
+				{/* <DebounceInput
 					type='text'
 					initialValue={value.name}
 					onChangeCb={inputValue => {
 						changeExercise(inputValue, number - 1);
 					}}
 					timerNotifier={isRunning => {
-						changeTimers(isRunning, value.id);
+						timerCb(isRunning, value.id);
 					}}
+				/> */}
+
+				<input
+					type='text'
+					value={value.name}
+					onChange={e => changeExercise(e.target.value, number - 1)}
+					onBlur={() => dispatch(modifyWorkouts(workoutInfo))}
 				/>
 				<span
 					className='remove-exercise'
@@ -87,7 +99,7 @@ const SingleWorkout = ({ workout, opened }) => {
 
 	const updateInputFields = () => {
 		const inputFields = workoutInfo.exercises.map((exercise, index) => {
-			return inputGroup(index + 1, exercise);
+			return inputGroup(index + 1, exercise, changeTimers);
 		});
 
 		setInputFields(inputFields);
@@ -108,6 +120,7 @@ const SingleWorkout = ({ workout, opened }) => {
 	};
 
 	useEffect(() => {
+		console.log(runningTimers);
 		const isTimerRunning = Object.values(runningTimers).some(Boolean);
 		setIsTimerRunning(isTimerRunning);
 	}, [runningTimers]);
@@ -116,14 +129,14 @@ const SingleWorkout = ({ workout, opened }) => {
 		updateInputFields();
 	}, [workoutInfo.exercises]);
 
-	useEffect(() => {
-		//if (!saved) return;
-		dispatch(modifyWorkouts(workoutInfo));
-		// neeeded to prevent unnecessary redux dispatches
-		setTimeout(() => {
-			setSaved(false);
-		});
-	}, [workoutInfo]);
+	// useEffect(() => {
+	// 	//if (!saved) return;
+	// 	dispatch(modifyWorkouts(workoutInfo));
+	// 	// neeeded to prevent unnecessary redux dispatches
+	// 	setTimeout(() => {
+	// 		setSaved(false);
+	// 	});
+	// }, [workoutInfo]);
 
 	const PanelHeader = () => {
 		return (
@@ -142,7 +155,7 @@ const SingleWorkout = ({ workout, opened }) => {
 			<WorkoutMain onSubmit={saveChanges}>
 				<div className='form-group name-group'>
 					<label htmlFor='name'>Workout Name</label>
-					<DebounceInput
+					{/* <DebounceInput
 						type='text'
 						id='name'
 						initialValue={workoutInfo.name}
@@ -150,6 +163,16 @@ const SingleWorkout = ({ workout, opened }) => {
 							inputValue !== workoutInfo.name &&
 								setWorkoutInfo({ ...workoutInfo, name: inputValue.trim() });
 						}}
+					/> */}
+
+					<input
+						type='text'
+						id='name'
+						value={workoutInfo.name}
+						onChange={e =>
+							setWorkoutInfo({ ...workoutInfo, name: e.target.value.trim() })
+						}
+						onBlur={() => dispatch(modifyWorkouts(workoutInfo))}
 					/>
 				</div>
 

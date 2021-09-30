@@ -14,19 +14,18 @@ const DebounceInput = ({
 	const clearTimer = () => {
 		if (!timerID.current) return;
 		clearTimeout(timerID.current);
-		timerNotifier && timerNotifier(false);
+		timerNotifier && timerNotifier(false, 1);
 	};
 
 	useEffect(() => {
-		// clearTimer();
+		if (inputValue === initialValue) return;
+		//	clearTimer();
 		timerID.current = setTimeout(() => {
 			onChangeCb(inputValue);
-			timerNotifier && timerNotifier(false);
+			timerNotifier && timerNotifier(false, 2);
 		}, DEBOUNCE_TIME);
 
-		console.log('timer notifier is: ', timerNotifier);
-		console.log('onChangeCb is: ', onChangeCb);
-		timerNotifier && timerNotifier(true);
+		timerNotifier && timerNotifier(true, 3);
 
 		return () => {
 			clearTimer();

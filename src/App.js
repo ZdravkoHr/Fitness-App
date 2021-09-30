@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { Router, Switch, Route } from 'react-router-dom';
 import { auth, db } from './firebase';
@@ -21,6 +21,7 @@ function App() {
 	const [isSidebarOpened, setIsSidebarOpened] = useState(false);
 	const [user, setUser] = useState(null);
 	const { logged } = useSelector(userSelector);
+	const headerRef = useRef();
 
 	useEffect(() => {
 		auth.onAuthStateChanged(userAuth => {
@@ -55,7 +56,7 @@ function App() {
 	return (
 		<div className='App'>
 			<Router history={history}>
-				<Navbar openSidebar={() => setIsSidebarOpened(true)} />
+				<Navbar openSidebar={() => setIsSidebarOpened(true)} ref={headerRef} />
 				<Sidebar
 					opened={isSidebarOpened}
 					closeSidebar={() => setIsSidebarOpened(false)}

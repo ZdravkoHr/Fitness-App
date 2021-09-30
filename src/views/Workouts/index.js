@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeWorkout } from 'store/slices/user';
 import { userSelector } from 'store';
@@ -27,6 +27,7 @@ const Workouts = () => {
 		appData: { workouts: userWorkouts },
 		dbAppData: { workouts: dbWorkouts },
 	} = useSelector(userSelector);
+	const workoutsRef = useRef();
 
 	const addHandler = () => {
 		// setIsModalOpened(true);
@@ -60,7 +61,28 @@ const Workouts = () => {
 		setCurrentWorkout({});
 	};
 
+	// const dispatchWorkouts = () => {
+	// 	const newWorkouts = [...workoutsRef.current.children].map(workout => {
+
+	// 		const name = workout.querySelector('#name').value;
+
+	// 		const exercises = [...workout.querySelectorAll('.exercises-group')].map(
+	// 			group => {
+	// 				return group.querySelector('input').value;
+	// 			}
+	// 		);
+
+	// 		return {
+	// 			name,
+	// 			exercises,
+	// 		};
+	// 	});
+
+	// 	console.log(newWorkouts);
+	// };
+
 	const updateHandler = () => {
+		// dispatchWorkouts();
 		if (!areWorkoutsDifferent(dbWorkouts, workouts)) return;
 		db.collection('users').doc(user.uid).set({
 			workouts,
@@ -127,7 +149,7 @@ const Workouts = () => {
 						</button>
 					</header>
 
-					<article className='workout-items'>
+					<article className='workout-items' ref={workoutsRef}>
 						{workouts.map(workout => {
 							const opened = workout.id === currentWorkout.id;
 							return (

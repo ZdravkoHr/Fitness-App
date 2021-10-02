@@ -4,11 +4,8 @@ export default function useOutsideClick(ref) {
 	const [isClicked, setIsClicked] = useState([]);
 	useEffect(() => {
 		function handleClickOutside(event) {
-			if (ref.current && !ref.current.contains(event.target)) {
-				setIsClicked([true]);
-			} else {
-				setIsClicked([false]);
-			}
+			const clicked = ref.current && !ref.current.contains(event.target);
+			setIsClicked([clicked]);
 		}
 
 		document.addEventListener('mousedown', handleClickOutside);

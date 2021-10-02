@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import uuid from 'react-uuid';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -6,6 +6,7 @@ import Panel from 'components/Panel';
 import DebounceInput from 'components/DebounceInput';
 import WorkoutMain from './WorkoutMain.style';
 import { areWorkoutsDifferent } from 'helpers';
+import useOutsideClick from 'hooks/useOutsideClick';
 import { modifyWorkouts, removeWorkout } from 'store/slices/user';
 
 const SingleWorkout = ({ workout, opened }) => {
@@ -18,8 +19,10 @@ const SingleWorkout = ({ workout, opened }) => {
 	const [inputFields, setInputFields] = useState([]);
 	const [isTimerRunning, setIsTimerRunning] = useState(false);
 	const [runningTimers, setRunningTimers] = useState({});
+	const panelRef = useRef();
+	const outsideClick = useOutsideClick(panelRef);
 
-	const [saved, setSaved] = useState(false);
+	const [saved, setSaved] = useState(true);
 
 	const addExercise = () => {
 		setWorkoutInfo({
@@ -38,7 +41,20 @@ const SingleWorkout = ({ workout, opened }) => {
 		});
 	};
 
+	const changeName = name => {
+		setWorkoutInfo({
+			...workoutInfo,
+			name,
+		});
+	};
+
+	useEffect(() => {
+		console.log('workoutInfo: ', workoutInfo);
+	}, [workoutInfo]);
+
 	const changeExercise = (value, index) => {
+		setSaved(false);
+		console.log(workoutInfo);
 		const newWorkout = {
 			...workoutInfo,
 			exercises: [
@@ -85,7 +101,7 @@ const SingleWorkout = ({ workout, opened }) => {
 					type='text'
 					value={value.name}
 					onChange={e => changeExercise(e.target.value, number - 1)}
-					onBlur={() => dispatch(modifyWorkouts(workoutInfo))}
+					//	onBlur={() => dispatch(modifyWorkouts(workoutInfo))}
 				/>
 				<span
 					className='remove-exercise'
@@ -120,14 +136,20 @@ const SingleWorkout = ({ workout, opened }) => {
 	};
 
 	useEffect(() => {
-		console.log(runningTimers);
-		const isTimerRunning = Object.values(runningTimers).some(Boolean);
-		setIsTimerRunning(isTimerRunning);
-	}, [runningTimers]);
+		if (saved || !outsideClick[0]) return;
+		dispatch(modifyWorkouts(workoutInfo));
+		setSaved(true);
+	}, [outsideClick]);
+
+	// useEffect(() => {
+	// 	console.log(runningTimers);
+	// 	const isTimerRunning = Object.values(runningTimers).some(Boolean);
+	// 	setIsTimerRunning(isTimerRunning);
+	// }, [runningTimers]);
 
 	useEffect(() => {
 		updateInputFields();
-	}, [workoutInfo.exercises]);
+	}, [workoutInfo]);
 
 	// useEffect(() => {
 	// 	//if (!saved) return;
@@ -152,7 +174,7 @@ const SingleWorkout = ({ workout, opened }) => {
 
 	const PanelMain = () => {
 		return (
-			<WorkoutMain onSubmit={saveChanges}>
+			<WorkoutMain onSubmit={saveChanges} ref={panelRef}>
 				<div className='form-group name-group'>
 					<label htmlFor='name'>Workout Name</label>
 					{/* <DebounceInput
@@ -169,10 +191,8 @@ const SingleWorkout = ({ workout, opened }) => {
 						type='text'
 						id='name'
 						value={workoutInfo.name}
-						onChange={e =>
-							setWorkoutInfo({ ...workoutInfo, name: e.target.value.trim() })
-						}
-						onBlur={() => dispatch(modifyWorkouts(workoutInfo))}
+						onChange={e => changeName(e.target.value)}
+						//onBlur={() => dispatch(modifyWorkouts(workoutInfo))}
 					/>
 				</div>
 
@@ -186,6 +206,8 @@ const SingleWorkout = ({ workout, opened }) => {
 			</WorkoutMain>
 		);
 	};
+
+	if (!workoutInfo) return <></>;
 
 	return (
 		<Panel

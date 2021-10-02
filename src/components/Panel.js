@@ -1,16 +1,10 @@
 import { useState } from 'react';
 import PanelEl from './Panel.style';
 
-const Panel = ({
-	headerContent,
-	mainContent,
-	disabledClick,
-	opened: isOpened,
-}) => {
+const Panel = ({ headerContent, mainContent, opened: isOpened }) => {
 	const [opened, setOpened] = useState(isOpened);
 
 	const clickHandler = () => {
-		if (disabledClick) return;
 		setOpened(!opened);
 	};
 

@@ -9,14 +9,12 @@ import { validateEmail, validatePassword } from 'validate';
 import { history } from 'helpers';
 import { userSelector } from 'store';
 import { Email, Lock, Visibility, VisibilityOff } from '@material-ui/icons';
-import { showError as activateError } from '../formFunctions';
 import NotificationBox from 'components/Notifications/NotificationBox.js';
 const Signin = () => {
 	const dispatch = useDispatch();
 
 	const [isLoading, setIsLoading] = useState(true);
 	const [fail, setFail] = useState(false);
-	const [closeTimer, setCloseTimer] = useState(null);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [errorTxt, setErrorTxt] = useState('');
@@ -25,7 +23,6 @@ const Signin = () => {
 	const { logged } = useSelector(userSelector);
 
 	useEffect(() => {
-		console.log(logged);
 		if (logged === true || logged === false) {
 			setIsLoading(false);
 		}
@@ -35,7 +32,8 @@ const Signin = () => {
 	}, [logged]);
 
 	const showError = error => {
-		activateError(error, setFail, setErrorTxt, setCloseTimer);
+		setFail(true);
+		setErrorTxt(error.message);
 	};
 
 	const signinWithGoogle = () => {
@@ -46,7 +44,6 @@ const Signin = () => {
 	const submitHandler = async e => {
 		try {
 			e.preventDefault();
-			closeTimer && clearTimeout(closeTimer);
 
 			validateEmail(email);
 			validatePassword(password);
@@ -86,7 +83,9 @@ const Signin = () => {
 				text={errorTxt}
 				active={fail}
 				fail={true}
-				closeCb={() => setFail(false)}
+				closeCb={() => {
+					setFail(false);
+				}}
 			/>
 			<SignForm onSubmit={submitHandler}>
 				<div className='form-group'>

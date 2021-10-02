@@ -8,15 +8,16 @@ import WorkoutsEl from './Workouts.style';
 import Spinner from 'components/Spinner';
 import { setDbAppData } from 'store/slices/user';
 import SingleWorkout from 'components/Workouts/SingleWorkout';
+import NotificationBox from 'components/Notifications/NotificationBox';
 
 const Workouts = () => {
 	const dispatch = useDispatch();
 
 	const [isLoading, setIsLoading] = useState(true);
-	// const [isModalOpened, setIsModalOpened] = useState(false);
-	//const [mode, setMode] = useState('adding');
+	const [notificationData, setNotificationData] = useState({});
 	const [currentWorkout, setCurrentWorkout] = useState({});
 	const [workouts, setWorkouts] = useState([]);
+
 	const {
 		user,
 		logged,
@@ -38,7 +39,14 @@ const Workouts = () => {
 	};
 
 	const saveWorkouts = () => {
-		if (!areWorkoutsDifferent(dbWorkouts, workouts)) return;
+		if (!areWorkoutsDifferent(dbWorkouts, workouts)) {
+			setNotificationData({
+				active: true,
+				fail: true,
+				text: 'You have not made any changes to your data.',
+			});
+			return;
+		}
 		db.collection('users').doc(user.uid).set({
 			workouts,
 		});
@@ -76,6 +84,12 @@ const Workouts = () => {
 		<>
 			<WorkoutsEl className='container workouts'>
 				<h1>Your Workouts</h1>
+				<NotificationBox
+					active={notificationData?.active}
+					fail={notificationData?.fail}
+					text={notificationData?.text}
+					closeCb={() => setNotificationData({})}
+				/>
 				<section className='workouts-list'>
 					<header className='top'>
 						<h2>

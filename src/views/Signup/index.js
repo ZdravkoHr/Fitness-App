@@ -14,7 +14,6 @@ import {
 } from '@material-ui/icons';
 import { validateEmail, validatePassword, validateUsername } from 'validate';
 import { history } from 'helpers';
-import { showError as activateError } from '../formFunctions';
 import NotificationBox from 'components/Notifications/NotificationBox.js';
 const Signup = () => {
 	const dispatch = useDispatch();
@@ -22,7 +21,6 @@ const Signup = () => {
 	const [isLogged, setIsLogged] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [fail, setFail] = useState(false);
-	const [closeTimer, setCloseTimer] = useState(null);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [username, setUsername] = useState('');
@@ -41,7 +39,8 @@ const Signup = () => {
 	}, [logged]);
 
 	const showError = error => {
-		activateError(error, setFail, setErrorTxt, setCloseTimer);
+		setFail(true);
+		setErrorTxt(error.message);
 	};
 
 	const signupWithGoogle = () => {
@@ -75,8 +74,6 @@ const Signup = () => {
 	const submitHandler = e => {
 		try {
 			e.preventDefault();
-			closeTimer && clearTimeout(closeTimer);
-
 			validateEmail(email);
 			validatePassword(password);
 			validateUsername(username);

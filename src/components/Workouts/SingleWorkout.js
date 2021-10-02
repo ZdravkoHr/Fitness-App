@@ -42,6 +42,7 @@ const SingleWorkout = ({ workout, opened }) => {
 			...workoutInfo,
 			name,
 		});
+		setSaved(false);
 	};
 
 	const changeExercise = (value, index) => {

@@ -14,7 +14,6 @@ const SingleWorkout = ({ workout, opened }) => {
 		name: workout.name || '',
 		exercises: workout.exercises || [],
 	});
-	const [inputFields, setInputFields] = useState([]);
 	const panelRef = useRef();
 	const outsideClick = useOutsideClick(panelRef);
 
@@ -83,23 +82,11 @@ const SingleWorkout = ({ workout, opened }) => {
 		);
 	};
 
-	const updateInputFields = () => {
-		const inputFields = workoutInfo.exercises.map((exercise, index) => {
-			return inputGroup(index + 1, exercise);
-		});
-
-		setInputFields(inputFields);
-	};
-
 	useEffect(() => {
 		if (saved || !outsideClick[0]) return;
 		dispatch(modifyWorkouts(workoutInfo));
 		setSaved(true);
 	}, [outsideClick]);
-
-	useEffect(() => {
-		updateInputFields();
-	}, [workoutInfo]);
 
 	const PanelHeader = () => {
 		return (
@@ -126,7 +113,9 @@ const SingleWorkout = ({ workout, opened }) => {
 					/>
 				</div>
 
-				{inputFields.map(field => field)}
+				{workoutInfo.exercises.map((exercise, index) => {
+					return inputGroup(index + 1, exercise);
+				})}
 
 				<span className='add-exercise' onClick={addExercise}>
 					Add Exercise

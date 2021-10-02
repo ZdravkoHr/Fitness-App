@@ -1,22 +1,18 @@
-import { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useState } from 'react';
 import SignForm from '../Form.style';
 import { auth } from '../../firebase';
 import { validateEmail } from 'validate';
 import { Email, CheckCircle } from '@material-ui/icons';
-import { showError as activateError } from '../formFunctions';
 import NotificationBox from 'components/Notifications/NotificationBox.js';
 const ResetPassword = () => {
-	const dispatch = useDispatch();
-
 	const [success, setSuccess] = useState(false);
 	const [fail, setFail] = useState(false);
-	const [closeTimer, setCloseTimer] = useState(null);
 	const [email, setEmail] = useState('');
 	const [errorTxt, setErrorTxt] = useState('');
 
 	const showError = error => {
-		activateError(error, setFail, setErrorTxt, setCloseTimer);
+		setFail(true);
+		setErrorTxt(error.message);
 	};
 
 	const FormElements = () => {
@@ -44,7 +40,6 @@ const ResetPassword = () => {
 	const submitHandler = async e => {
 		try {
 			e.preventDefault();
-			closeTimer && clearTimeout(closeTimer);
 			validateEmail(email);
 			await auth.sendPasswordResetEmail(email);
 			setSuccess(true);

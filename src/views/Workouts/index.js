@@ -83,18 +83,20 @@ const Workouts = () => {
 
 	const updateHandler = () => {
 		// dispatchWorkouts();
-		console.log('dbWorkouts: ', dbWorkouts);
-		console.log('workouts: ', workouts);
-		if (!areWorkoutsDifferent(dbWorkouts, workouts)) return;
-		db.collection('users').doc(user.uid).set({
-			workouts,
-		});
-		dispatch(
-			setDbAppData({
-				...appData,
+		setTimeout(() => {
+			console.log('dbWorkouts: ', dbWorkouts);
+			console.log('workouts: ', workouts);
+			if (!areWorkoutsDifferent(dbWorkouts, workouts)) return;
+			db.collection('users').doc(user.uid).set({
 				workouts,
-			})
-		);
+			});
+			dispatch(
+				setDbAppData({
+					...appData,
+					workouts,
+				})
+			);
+		});
 	};
 
 	useEffect(() => {

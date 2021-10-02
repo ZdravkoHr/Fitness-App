@@ -28,6 +28,7 @@ const SingleWorkout = ({ workout, opened }) => {
 	};
 
 	const removeExercise = index => {
+		setSaved(false);
 		setWorkoutInfo({
 			...workoutInfo,
 			exercises: [
@@ -130,13 +131,9 @@ const SingleWorkout = ({ workout, opened }) => {
 				<span className='add-exercise' onClick={addExercise}>
 					Add Exercise
 				</span>
-
-				<button className='btn btn-save'>Save</button>
 			</WorkoutMain>
 		);
 	};
-
-	if (!workoutInfo) return <></>;
 
 	return (
 		<Panel

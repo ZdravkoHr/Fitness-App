@@ -26,7 +26,7 @@ const NotificationBox = ({
 				fail ? 'fail' : ''
 			}`}
 		>
-			<h2>{text + ' hello'}</h2>
+			<h2>{text}</h2>
 		</NotificationBoxEl>
 	);
 };

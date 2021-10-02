@@ -38,13 +38,19 @@ const Workouts = () => {
 		setWorkouts([...workouts, newWorkout]);
 	};
 
+	const showSavedNotification = success => {
+		setNotificationData({
+			active: true,
+			fail: !success,
+			text: success
+				? 'You have successfully saved your data.'
+				: 'You have not made any changes to your data.',
+		});
+	};
+
 	const saveWorkouts = () => {
 		if (!areWorkoutsDifferent(dbWorkouts, workouts)) {
-			setNotificationData({
-				active: true,
-				fail: true,
-				text: 'You have not made any changes to your data.',
-			});
+			showSavedNotification(false);
 			return;
 		}
 		db.collection('users').doc(user.uid).set({
@@ -56,6 +62,8 @@ const Workouts = () => {
 				workouts,
 			})
 		);
+
+		showSavedNotification(true);
 	};
 
 	useEffect(() => {

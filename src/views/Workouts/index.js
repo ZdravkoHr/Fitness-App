@@ -6,13 +6,12 @@ import uuid from 'react-uuid';
 import { areWorkoutsDifferent } from 'helpers';
 import WorkoutsEl from './Workouts.style';
 import Spinner from 'components/Spinner';
-import { setDbAppData } from 'store/slices/user';
+import { modifyWorkouts, setDbAppData } from 'store/slices/user';
 import SingleWorkout from 'components/Workouts/SingleWorkout';
 import NotificationBox from 'components/Notifications/NotificationBox';
 
 const Workouts = () => {
 	const dispatch = useDispatch();
-
 	const [isLoading, setIsLoading] = useState(true);
 	const [notificationData, setNotificationData] = useState({});
 	const [currentWorkout, setCurrentWorkout] = useState({});
@@ -35,7 +34,7 @@ const Workouts = () => {
 		};
 
 		setCurrentWorkout(newWorkout);
-		setWorkouts([...workouts, newWorkout]);
+		dispatch(modifyWorkouts(newWorkout));
 	};
 
 	const showSavedNotification = success => {
@@ -104,11 +103,7 @@ const Workouts = () => {
 							You have {workouts.length}{' '}
 							{workouts.length === 1 ? 'workout' : 'workouts'}
 						</h2>
-						<button
-							className='btn btn-green btn-rounded'
-							onClick={addHandler}
-							disabled={workouts.length !== userWorkouts.length}
-						>
+						<button className='btn btn-green btn-rounded' onClick={addHandler}>
 							Add Workout +
 						</button>
 					</header>

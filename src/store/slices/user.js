@@ -1,20 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const dataForApp = {
-	workouts: [],
-};
-
 const userSlice = createSlice({
 	name: 'user',
 	initialState: {
 		user: null,
 		logged: false,
-		appData: {
-			...dataForApp,
-		},
-		dbAppData: {
-			...dataForApp,
-		},
 	},
 	reducers: {
 		login: (state, { payload }) => {
@@ -26,43 +16,9 @@ const userSlice = createSlice({
 			state.user = null;
 			state.logged = false;
 		},
-
-		removeWorkout: (state, { payload }) => {
-			state.appData.workouts = state.appData.workouts.filter(
-				workout => workout.id !== payload
-			);
-		},
-		modifyWorkouts: (state, { payload }) => {
-			const workoutIndex = state.appData.workouts.findIndex(
-				workout => workout.id === payload.id
-			);
-
-			if (workoutIndex === -1) {
-				state.appData.workouts.push(payload);
-				return;
-			}
-
-			state.appData.workouts = state.appData.workouts.map(workout => {
-				return workout.id === payload.id ? payload : workout;
-			});
-		},
-		setAppData: (state, { payload }) => {
-			state.appData = payload;
-		},
-		setDbAppData: (state, { payload }) => {
-			state.dbAppData = payload;
-		},
 	},
 });
 
 export default userSlice.reducer;
 
-export const {
-	login,
-	logout,
-	modifyWorkouts,
-	removeWorkout,
-	editWorkout,
-	setAppData,
-	setDbAppData,
-} = userSlice.actions;
+export const { login, logout } = userSlice.actions;

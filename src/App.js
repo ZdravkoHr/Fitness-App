@@ -3,7 +3,8 @@ import { useDispatch } from 'react-redux';
 import { Router, Switch, Route } from 'react-router-dom';
 import { auth, db } from './firebase';
 import { useSelector } from 'react-redux';
-import { login, setAppData, setDbAppData } from 'store/slices/user';
+import { login } from 'store/slices/user';
+import { setAppData, setDbData } from 'store/slices/workouts';
 import { userSelector } from 'store';
 import { history } from 'helpers';
 import './App.scss';
@@ -42,9 +43,9 @@ function App() {
 	const getData = async () => {
 		const snapshot = await db.collection('users').doc(user.uid).get('workouts');
 		const data = snapshot.data();
-
-		data && dispatch(setAppData(data));
-		data && dispatch(setDbAppData(data));
+		if (!data) return;
+		dispatch(setAppData(data));
+		dispatch(setDbData(data));
 	};
 
 	useEffect(() => {

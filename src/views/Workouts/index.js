@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { userSelector } from 'store';
+import { userSelector, workoutsSelector } from 'store';
 import { db } from '../../firebase';
 import uuid from 'react-uuid';
 import { areWorkoutsDifferent } from 'helpers';
 import WorkoutsEl from './Workouts.style';
 import Spinner from 'components/Spinner';
-import { modifyWorkouts, setDbAppData } from 'store/slices/user';
+import { modifyWorkouts, setDbData } from 'store/slices/workouts';
 import SingleWorkout from 'components/Workouts/SingleWorkout';
 import NotificationBox from 'components/Notifications/NotificationBox';
 
@@ -17,13 +17,12 @@ const Workouts = () => {
 	const [currentWorkout, setCurrentWorkout] = useState({});
 	const [workouts, setWorkouts] = useState([]);
 
+	const { user, logged } = useSelector(userSelector);
 	const {
-		user,
-		logged,
 		appData,
 		appData: { workouts: userWorkouts },
-		dbAppData: { workouts: dbWorkouts },
-	} = useSelector(userSelector);
+		dbData: { workouts: dbWorkouts },
+	} = useSelector(workoutsSelector);
 	const workoutsRef = useRef();
 
 	const addHandler = () => {
@@ -48,6 +47,8 @@ const Workouts = () => {
 	};
 
 	const saveWorkouts = () => {
+		console.log(dbWorkouts);
+		console.log(workouts);
 		if (!areWorkoutsDifferent(dbWorkouts, workouts)) {
 			showSavedNotification(false);
 			return;
@@ -56,7 +57,7 @@ const Workouts = () => {
 			workouts,
 		});
 		dispatch(
-			setDbAppData({
+			setDbData({
 				...appData,
 				workouts,
 			})

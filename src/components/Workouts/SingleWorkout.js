@@ -5,7 +5,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import Panel from 'components/Panel';
 import WorkoutMain from './WorkoutMain.style';
 import useOutsideClick from 'hooks/useOutsideClick';
-import { modifyWorkouts, removeWorkout } from 'store/slices/user';
+import { modifyWorkouts, removeWorkout } from 'store/slices/workouts';
 
 const SingleWorkout = ({ workout, opened }) => {
 	const dispatch = useDispatch();

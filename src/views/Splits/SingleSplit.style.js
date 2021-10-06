@@ -35,6 +35,18 @@ const SingleSplitEl = styled.main`
 		text-transform: uppercase;
 		user-select: none;
 	}
+
+	.delete-area {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(243, 57, 57, 0.6);
+		height: 130px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
 `;
 
 export default SingleSplitEl;

@@ -21,6 +21,15 @@ const SingleSplit = () => {
 
 	const [splitWorkouts, setSplitWorkouts] = useState([]);
 	const [allWorkouts, setAllWorkouts] = useState([]);
+	const [showDeleteArea, setShowDeleteArea] = useState(false);
+
+	const DeleteArea = () => {
+		return (
+			<div className='delete-area'>
+				<DeleteIcon />
+			</div>
+		);
+	};
 
 	const startDragging = (e, id) => {
 		e.dataTransfer.setData('id', id);
@@ -64,15 +73,21 @@ const SingleSplit = () => {
 						onDrop={dropData}
 					>
 						{splitWorkouts.map(workout => {
-							return <WorkoutBox workout={workout} key={uuid()} />;
+							console.log(workout);
+							return (
+								<WorkoutBox
+									workout={workout}
+									key={uuid()}
+									draggable='true'
+									onDragStart={() => setShowDeleteArea(true)}
+								/>
+							);
 						})}
 					</div>
 				</div>
 			</div>
 
-			<div className='delete-area'>
-				<DeleteIcon />
-			</div>
+			{showDeleteArea && DeleteArea()}
 		</SingleSplitEl>
 	);
 };

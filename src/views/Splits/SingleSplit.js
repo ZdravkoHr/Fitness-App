@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import uuid from 'react-uuid';
+import { DragDropContainer, DropTarget } from 'react-drag-drop-container';
 import SingleSplitEl from './SingleSplit.style';
 import WorkoutBox from 'components/Splits/WorkoutBox';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -21,15 +22,18 @@ const SingleSplit = () => {
 
 	const [splitWorkouts, setSplitWorkouts] = useState([]);
 	const [allWorkouts, setAllWorkouts] = useState([]);
+	const [showDeleteArea, setShowDeleteArea] = useState(false);
 
-	const startDragging = (e, id) => {
-		e.dataTransfer.setData('id', id);
+	const DeleteArea = () => {
+		return (
+			<div className='delete-area'>
+				<DeleteIcon />
+			</div>
+		);
 	};
 
-	const dropData = e => {
-		const id = e.dataTransfer.getData('id');
-		const workout = allWorkouts.find(workout => workout.id === id);
-
+	const dropWorkout = e => {
+		const workout = e.dragData;
 		setSplitWorkouts([...splitWorkouts, workout]);
 	};
 
@@ -48,31 +52,36 @@ const SingleSplit = () => {
 					<div className='all-workouts-field'>
 						{allWorkouts.map(workout => {
 							return (
-								<WorkoutBox
-									workout={workout}
+								<DragDropContainer
 									key={workout.id}
-									draggable='true'
-									onDragStart={e => startDragging(e, workout.id)}
-								/>
+									dragData={workout}
+									targetKey='splitworkout'
+								>
+									<WorkoutBox workout={workout} />
+								</DragDropContainer>
 							);
 						})}
 					</div>
 
-					<div
-						className='split-workouts-field'
-						onDragOver={e => e.preventDefault()}
-						onDrop={dropData}
-					>
-						{splitWorkouts.map(workout => {
-							return <WorkoutBox workout={workout} key={uuid()} />;
-						})}
-					</div>
+					<DropTarget targetKey='splitworkout' onHit={dropWorkout}>
+						<div className='split-workouts-field'>
+							{splitWorkouts.map(workout => {
+								return (
+									<DragDropContainer
+										key={uuid()}
+										dragData={workout}
+										targetKey='splitworkout'
+									>
+										<WorkoutBox workout={workout} />;
+									</DragDropContainer>
+								);
+							})}
+						</div>
+					</DropTarget>
 				</div>
 			</div>
 
-			<div className='delete-area'>
-				<DeleteIcon />
-			</div>
+			{showDeleteArea && DeleteArea()}
 		</SingleSplitEl>
 	);
 };

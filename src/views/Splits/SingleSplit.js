@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import uuid from 'react-uuid';
 import SingleSplitEl from './SingleSplit.style';
@@ -22,6 +22,8 @@ const SingleSplit = () => {
 	const [splitWorkouts, setSplitWorkouts] = useState([]);
 	const [allWorkouts, setAllWorkouts] = useState([]);
 	const [showDeleteArea, setShowDeleteArea] = useState(false);
+	const dragInfo = useRef(null);
+	const dropBox = useRef();
 
 	const DeleteArea = () => {
 		return (
@@ -31,20 +33,81 @@ const SingleSplit = () => {
 		);
 	};
 
-	const startDragging = (e, id) => {
-		e.dataTransfer.setData('id', id);
+	const startDragging = (e, item, isTouchEvent) => {
+		e.preventDefault();
+		let coords;
+
+		console.log(e.target.clientX, e.target.clientY);
+
+		if (isTouchEvent) {
+			coords = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+		} else {
+			coords = {
+				x: e.target.clientX,
+				y: e.target.clienty,
+			};
+		}
+
+		dragInfo.current = {
+			item,
+			initCoords: coords,
+		};
+	};
+
+	const moveDraggableObject = (e, isTouchEvent) => {
+		e.preventDefault();
+		console.log('moving');
+		const root = isTouchEvent ? e.touches[0] : e.target;
+		console.log(root);
+		const xDiff = root.clientX - dragInfo.current.initCoords.x;
+		const yDiff = root.clientY - dragInfo.current.initCoords.y;
+		e.target.style.transform = `translate(${xDiff}px, ${yDiff}px)`;
+		dragInfo.current.coords = {
+			x: root.clientX,
+			y: root.clientY,
+		};
+	};
+
+	const stopDrag = e => {
+		const {
+			left: targetX,
+			top: targetY,
+			width: targetWidth,
+			height: targetHeight,
+		} = e.target.getBoundingClientRect();
+		e.target.style.transform = `translate(0, 0)`;
+		const { left, top, width, height } =
+			dropBox.current.getBoundingClientRect();
+		console.log(dragInfo.current.coords, left, top, width, height);
+		if (
+			targetX + targetWidth >= left &&
+			targetX <= left + width &&
+			targetY + targetHeight >= top &&
+			targetY <= top + height
+		) {
+			console.log('dropping');
+			dropData();
+		}
 	};
 
 	const dropData = e => {
-		const id = e.dataTransfer.getData('id');
-		const workout = allWorkouts.find(workout => workout.id === id);
-
-		setSplitWorkouts([...splitWorkouts, workout]);
+		setSplitWorkouts([...splitWorkouts, dragInfo.current.item]);
 	};
 
 	useEffect(() => {
 		setAllWorkouts([restObj, ...workouts]);
 	}, [workouts]);
+
+	useEffect(() => {
+		document.addEventListener(
+			'touchstart',
+			e => {
+				console.log('preventing');
+				e.preventDefault();
+			},
+			{ passive: false }
+		);
+	}, []);
 
 	return (
 		<SingleSplitEl className='container single-split'>
@@ -60,8 +123,14 @@ const SingleSplit = () => {
 								<WorkoutBox
 									workout={workout}
 									key={workout.id}
-									draggable='true'
-									onDragStart={e => startDragging(e, workout.id)}
+									// draggable='true'
+									onMouseDown={e => startDragging(e, workout)}
+									onMouseMove={e => moveDraggableObject(e)}
+									// onTouchStart={e => startDragging(workout)}
+									onTouchStart={e => startDragging(e, workout, true)}
+									onTouchMove={e => moveDraggableObject(e, true)}
+									onTouchEnd={e => stopDrag(e)}
+									//	dropCb={dropData}
 								/>
 							);
 						})}
@@ -69,11 +138,11 @@ const SingleSplit = () => {
 
 					<div
 						className='split-workouts-field'
-						onDragOver={e => e.preventDefault()}
-						onDrop={dropData}
+						// onDragOver={e => e.preventDefault()}
+						// onDrop={dropData}
+						ref={dropBox}
 					>
 						{splitWorkouts.map(workout => {
-							console.log(workout);
 							return (
 								<WorkoutBox
 									workout={workout}

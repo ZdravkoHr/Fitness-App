@@ -37,8 +37,6 @@ const SingleSplit = () => {
 		e.preventDefault();
 		let coords;
 
-		console.log(e.target.clientX, e.target.clientY);
-
 		if (isTouchEvent) {
 			coords = { x: e.touches[0].clientX, y: e.touches[0].clientY };
 		} else {

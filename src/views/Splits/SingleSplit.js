@@ -22,7 +22,7 @@ const SingleSplit = () => {
 	const [splitWorkouts, setSplitWorkouts] = useState([]);
 	const [allWorkouts, setAllWorkouts] = useState([]);
 	const [showDeleteArea, setShowDeleteArea] = useState(false);
-	const dragInfo = useRef(null);
+	const dragInfo = useRef({ item: null, initCoords: null, dragging: false });
 	const dropBox = useRef();
 
 	const DeleteArea = () => {
@@ -33,7 +33,8 @@ const SingleSplit = () => {
 		);
 	};
 
-	const startDragging = (e, item, isTouchEvent) => {
+	const startDragging = (e, data, isTouchEvent) => {
+		console.log('start');
 		e.preventDefault();
 		let coords;
 
@@ -41,29 +42,50 @@ const SingleSplit = () => {
 			coords = { x: e.touches[0].clientX, y: e.touches[0].clientY };
 		} else {
 			coords = {
-				x: e.target.clientX,
-				y: e.target.clienty,
+				x: e.target.getBoundingClientRect().x,
+				y: e.target.getBoundingClientRect().y,
 			};
 		}
 
 		dragInfo.current = {
-			item,
+			data,
+			item: e.target,
 			initCoords: coords,
+			dragging: true,
 		};
 	};
 
 	const moveDraggableObject = (e, isTouchEvent) => {
-		e.preventDefault();
+		if (!dragInfo.current.dragging) return;
 		console.log('moving');
-		const root = isTouchEvent ? e.touches[0] : e.target;
-		console.log(root);
-		const xDiff = root.clientX - dragInfo.current.initCoords.x;
-		const yDiff = root.clientY - dragInfo.current.initCoords.y;
-		e.target.style.transform = `translate(${xDiff}px, ${yDiff}px)`;
-		dragInfo.current.coords = {
-			x: root.clientX,
-			y: root.clientY,
-		};
+		const { height, width } = dragInfo.current.item.getBoundingClientRect();
+		const xDiff = e.clientX - dragInfo.current.initCoords.x - width / 2;
+		const yDiff = e.clientY - dragInfo.current.initCoords.y - height / 2;
+		// console.log(e.clientX, e.clientY);
+		dragInfo.current.item.style.transform = `translate(${xDiff}px, ${yDiff}px)`;
+		// return;
+		// e.preventDefault();
+
+		// const root = isTouchEvent ? e.touches[0] : e;
+
+		// const clientY = e.clientY;
+
+		// console.log(e.target);
+
+		// // e.target.style.transform = `translateY(${clientY}px)`;
+
+		// const xDiff =
+		// 	root.getBoundingClientRect().x - dragInfo.current.initCoords.x;
+
+		// const yDiff =
+		// 	root.getBoundingClientRect().y - dragInfo.current.initCoords.y;
+		// e.target.style.transform = `translate(${xDiff}px, ${yDiff}px)`;
+		// console.log(root.getBoundingClientRect().y, dragInfo.current.initCoords.y);
+
+		// dragInfo.current.coords = {
+		// 	x: root.getBoundingClientRect().x,
+		// 	y: root.getBoundingClientRect().y,
+		// };
 	};
 
 	const stopDrag = e => {
@@ -73,10 +95,11 @@ const SingleSplit = () => {
 			width: targetWidth,
 			height: targetHeight,
 		} = e.target.getBoundingClientRect();
-		e.target.style.transform = `translate(0, 0)`;
+		dragInfo.current.item.style.transform = `translate(0, 0)`;
+		dragInfo.current.dragging = false;
 		const { left, top, width, height } =
 			dropBox.current.getBoundingClientRect();
-		console.log(dragInfo.current.coords, left, top, width, height);
+		// console.log(dragInfo.current.coords, left, top, width, height);
 		if (
 			targetX + targetWidth >= left &&
 			targetX <= left + width &&
@@ -89,22 +112,30 @@ const SingleSplit = () => {
 	};
 
 	const dropData = e => {
-		setSplitWorkouts([...splitWorkouts, dragInfo.current.item]);
+		setSplitWorkouts([...splitWorkouts, dragInfo.current.data]);
 	};
 
 	useEffect(() => {
 		setAllWorkouts([restObj, ...workouts]);
 	}, [workouts]);
 
+	// useEffect(() => {
+	// 	document.addEventListener(
+	// 		'touchstart',
+	// 		e => {
+	// 			console.log('preventing');
+	// 			e.preventDefault();
+	// 		},
+	// 		{ passive: false }
+	// 	);
+	// }, []);
+
 	useEffect(() => {
-		document.addEventListener(
-			'touchstart',
-			e => {
-				console.log('preventing');
-				e.preventDefault();
-			},
-			{ passive: false }
-		);
+		document.addEventListener('mousemove', moveDraggableObject);
+
+		return () => {
+			document.removeEventListener('mousemove', moveDraggableObject);
+		};
 	}, []);
 
 	return (
@@ -121,9 +152,10 @@ const SingleSplit = () => {
 								<WorkoutBox
 									workout={workout}
 									key={workout.id}
-									// draggable='true'
+									draggable='true'
 									onMouseDown={e => startDragging(e, workout)}
-									onMouseMove={e => moveDraggableObject(e)}
+									onMouseUp={stopDrag}
+									//onMouseMove={e => moveDraggableObject(e)}
 									// onTouchStart={e => startDragging(workout)}
 									onTouchStart={e => startDragging(e, workout, true)}
 									onTouchMove={e => moveDraggableObject(e, true)}

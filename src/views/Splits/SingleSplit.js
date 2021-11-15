@@ -34,7 +34,6 @@ const SingleSplit = () => {
 	};
 
 	const startDragging = (e, data, isTouchEvent) => {
-		console.log('start');
 		e.preventDefault();
 		let coords;
 
@@ -57,10 +56,11 @@ const SingleSplit = () => {
 
 	const moveDraggableObject = (e, isTouchEvent) => {
 		if (!dragInfo.current.dragging) return;
-		console.log('moving');
+
+		const source = isTouchEvent ? e.touches[0] : e;
 		const { height, width } = dragInfo.current.item.getBoundingClientRect();
-		const xDiff = e.clientX - dragInfo.current.initCoords.x - width / 2;
-		const yDiff = e.clientY - dragInfo.current.initCoords.y - height / 2;
+		const xDiff = source.clientX - dragInfo.current.initCoords.x - width / 2;
+		const yDiff = source.clientY - dragInfo.current.initCoords.y - height / 2;
 		// console.log(e.clientX, e.clientY);
 		dragInfo.current.item.style.transform = `translate(${xDiff}px, ${yDiff}px)`;
 		// return;
@@ -119,16 +119,16 @@ const SingleSplit = () => {
 		setAllWorkouts([restObj, ...workouts]);
 	}, [workouts]);
 
-	// useEffect(() => {
-	// 	document.addEventListener(
-	// 		'touchstart',
-	// 		e => {
-	// 			console.log('preventing');
-	// 			e.preventDefault();
-	// 		},
-	// 		{ passive: false }
-	// 	);
-	// }, []);
+	useEffect(() => {
+		document.addEventListener(
+			'touchstart',
+			e => {
+				console.log('preventing');
+				e.preventDefault();
+			},
+			{ passive: false }
+		);
+	}, []);
 
 	useEffect(() => {
 		document.addEventListener('mousemove', moveDraggableObject);

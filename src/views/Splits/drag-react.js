@@ -1,9 +1,17 @@
 import { useRef } from 'react';
 
-const DragObject = ({ dropBoxes, dropDataCb, dragData, children }) => {
+const DragObject = ({
+	dropBoxes,
+	startCb,
+	endCb,
+	dropCb,
+	dragData,
+	children,
+}) => {
 	const dragInfo = useRef({ item: null, initCoords: null, dragging: false });
 	const startDragging = (e, data, isTouchEvent) => {
 		e.preventDefault();
+		startCb && startCb();
 		let coords;
 
 		if (isTouchEvent) {
@@ -23,6 +31,8 @@ const DragObject = ({ dropBoxes, dropDataCb, dragData, children }) => {
 			initCoords: coords,
 			dragging: true,
 		};
+
+		console.log(dragInfo);
 	};
 
 	const moveDraggableObject = (e, isTouchEvent) => {
@@ -37,6 +47,8 @@ const DragObject = ({ dropBoxes, dropDataCb, dragData, children }) => {
 	};
 
 	const stopDrag = e => {
+		console.log(dragInfo);
+		endCb && endCb();
 		const {
 			left: targetX,
 			top: targetY,
@@ -49,15 +61,13 @@ const DragObject = ({ dropBoxes, dropDataCb, dragData, children }) => {
 		for (const dropBox of dropBoxes) {
 			const { left, top, width, height } =
 				dropBox.current.getBoundingClientRect();
-
 			if (
 				targetX + targetWidth >= left &&
 				targetX <= left + width &&
 				targetY + targetHeight >= top &&
 				targetY <= top + height
 			) {
-				console.log('dropping');
-				dropDataCb(e, dragInfo);
+				dropCb && dropCb(e, dragInfo);
 				break;
 			}
 		}

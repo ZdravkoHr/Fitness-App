@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import uuid from 'react-uuid';
 import SingleSplitEl from './SingleSplit.style';
@@ -10,6 +10,7 @@ import { workoutsSelector } from 'store';
 
 const SingleSplit = () => {
 	const { action } = useParams();
+	const [a, setA] = useState(false);
 	const {
 		appData: { workouts },
 	} = useSelector(workoutsSelector);
@@ -25,17 +26,29 @@ const SingleSplit = () => {
 	const [showDeleteArea, setShowDeleteArea] = useState(false);
 
 	const dropBox = useRef();
+	const deleteArea = useRef();
 
 	const DeleteArea = () => {
 		return (
-			<div className='delete-area'>
+			<div ref={deleteArea} className='delete-area'>
 				<DeleteIcon />
 			</div>
 		);
 	};
 
 	const dropData = (e, dragInfo) => {
-		setSplitWorkouts([...splitWorkouts, dragInfo.current.data]);
+		const newWorkout = { ...dragInfo.current.data, sampleId: uuid() };
+		setSplitWorkouts([...splitWorkouts, newWorkout]);
+	};
+
+	const removeWorkout = (e, dragInfo) => {
+		const workoutIndex = splitWorkouts.findIndex(
+			workout => workout.sampleId === dragInfo.current.data.sampleId
+		);
+		console.log(splitWorkouts, dragInfo.current.data.sampleId, workoutIndex);
+		const workoutsCopy = [...splitWorkouts];
+		workoutsCopy.splice(workoutIndex, 1);
+		setSplitWorkouts(workoutsCopy);
 	};
 
 	useEffect(() => {
@@ -75,7 +88,7 @@ const SingleSplit = () => {
 								<DragObject
 									key={workout.id}
 									dropBoxes={[dropBox]}
-									dropDataCb={dropData}
+									dropCb={dropData}
 									dragData={workout}
 								>
 									<WorkoutBox workout={workout} />
@@ -87,12 +100,16 @@ const SingleSplit = () => {
 					<div className='split-workouts-field' ref={dropBox}>
 						{splitWorkouts.map(workout => {
 							return (
-								<WorkoutBox
-									workout={workout}
-									key={uuid()}
-									draggable='true'
-									onDragStart={() => setShowDeleteArea(true)}
-								/>
+								<DragObject
+									key={workout.sampleId}
+									dragData={workout}
+									dropBoxes={[]}
+									startCb={() => setShowDeleteArea(true)}
+									endCb={() => setShowDeleteArea(false)}
+									dropCb={removeWorkout}
+								>
+									<WorkoutBox workout={workout} />
+								</DragObject>
 							);
 						})}
 					</div>
@@ -100,6 +117,7 @@ const SingleSplit = () => {
 			</div>
 
 			{showDeleteArea && DeleteArea()}
+			{a && <p>asddsa</p>}
 		</SingleSplitEl>
 	);
 };

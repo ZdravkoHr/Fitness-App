@@ -22,7 +22,9 @@ const SingleSplitEl = styled.main`
 	}
 
 	.workout {
+		position: relative;
 		background-color: var(--dark-color);
+		z-index: 5;
 	}
 
 	.rest,

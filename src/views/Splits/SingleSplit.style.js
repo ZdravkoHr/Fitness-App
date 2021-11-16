@@ -20,13 +20,15 @@ const SingleSplitEl = styled.main`
 	.rest {
 		position: relative;
 		background-color: var(--success-color);
-		z-index: 5;
 	}
 
 	.workout {
 		position: relative;
 		background-color: var(--dark-color);
-		z-index: 5;
+	}
+
+	.dragging {
+		z-index: 7;
 	}
 
 	.rest,

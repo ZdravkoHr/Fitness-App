@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 
 const DragObject = ({
 	dropBoxes,
@@ -25,6 +25,7 @@ const DragObject = ({
 			document.addEventListener('mousemove', moveDraggableObject);
 		}
 
+		e.target.classList.add('dragging');
 		dragInfo.current = {
 			data,
 			item: e.target,
@@ -34,6 +35,7 @@ const DragObject = ({
 	};
 
 	const moveDraggableObject = (e, isTouchEvent) => {
+		if (dragInfo.dragging === false) console.log(dragInfo);
 		if (!dragInfo.current.dragging) return;
 
 		const source = isTouchEvent ? e.touches[0] : e;
@@ -45,6 +47,8 @@ const DragObject = ({
 	};
 
 	const stopDrag = e => {
+		console.log(dragData);
+
 		endCb && endCb();
 		const {
 			left: targetX,
@@ -56,10 +60,10 @@ const DragObject = ({
 		dragInfo.current.dragging = false;
 
 		for (const dropBox of dropBoxes) {
+			console.log(dropBox);
 			const { left, top, width, height } =
 				dropBox.current.getBoundingClientRect();
 
-			console.log(targetX, targetY);
 			if (
 				targetX + targetWidth >= left &&
 				targetX <= left + width &&
@@ -73,6 +77,10 @@ const DragObject = ({
 
 		document.removeEventListener('mousemove', moveDraggableObject);
 	};
+
+	useEffect(() => {
+		document.addEventListener('mouseleave', stopDrag);
+	}, []);
 
 	return (
 		<div

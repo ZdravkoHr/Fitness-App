@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import uuid from 'react-uuid';
 import SingleSplitEl from './SingleSplit.style';
@@ -66,14 +66,6 @@ const SingleSplit = () => {
 		);
 	}, []);
 
-	// useEffect(() => {
-	// 	document.addEventListener('mousemove', moveDraggableObject);
-
-	// 	return () => {
-	// 		document.removeEventListener('mousemove', moveDraggableObject);
-	// 	};
-	// }, []);
-
 	return (
 		<SingleSplitEl className='container single-split'>
 			<div className='title'>
@@ -103,7 +95,7 @@ const SingleSplit = () => {
 								<DragObject
 									key={workout.sampleId}
 									dragData={workout}
-									dropBoxes={[]}
+									dropBoxes={[deleteArea]}
 									startCb={() => setShowDeleteArea(true)}
 									endCb={() => setShowDeleteArea(false)}
 									dropCb={removeWorkout}
@@ -117,7 +109,6 @@ const SingleSplit = () => {
 			</div>
 
 			{showDeleteArea && DeleteArea()}
-			{a && <p>asddsa</p>}
 		</SingleSplitEl>
 	);
 };

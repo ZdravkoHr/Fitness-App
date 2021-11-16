@@ -31,8 +31,6 @@ const DragObject = ({
 			initCoords: coords,
 			dragging: true,
 		};
-
-		console.log(dragInfo);
 	};
 
 	const moveDraggableObject = (e, isTouchEvent) => {
@@ -47,7 +45,6 @@ const DragObject = ({
 	};
 
 	const stopDrag = e => {
-		console.log(dragInfo);
 		endCb && endCb();
 		const {
 			left: targetX,
@@ -61,6 +58,8 @@ const DragObject = ({
 		for (const dropBox of dropBoxes) {
 			const { left, top, width, height } =
 				dropBox.current.getBoundingClientRect();
+
+			console.log(targetX, targetY);
 			if (
 				targetX + targetWidth >= left &&
 				targetX <= left + width &&

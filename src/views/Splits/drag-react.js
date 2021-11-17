@@ -25,7 +25,7 @@ const DragObject = ({
 			document.addEventListener('mousemove', moveDraggableObject);
 		}
 
-		e.target.classList.add('dragging');
+		e.target.classList.add('current-drag');
 		dragInfo.current = {
 			data,
 			item: e.target,
@@ -50,6 +50,7 @@ const DragObject = ({
 		console.log(dragData);
 
 		endCb && endCb();
+		e.target.classList.remove('current-drag');
 		const {
 			left: targetX,
 			top: targetY,
@@ -84,7 +85,6 @@ const DragObject = ({
 
 	return (
 		<div
-			draggable='true'
 			onMouseDown={e => startDragging(e, dragData)}
 			onMouseUp={stopDrag}
 			onTouchStart={e => startDragging(e, dragData, true)}

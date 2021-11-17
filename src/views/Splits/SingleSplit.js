@@ -10,7 +10,7 @@ import { workoutsSelector } from 'store';
 
 const SingleSplit = () => {
 	const { action } = useParams();
-	const [a, setA] = useState(false);
+
 	const {
 		appData: { workouts },
 	} = useSelector(workoutsSelector);

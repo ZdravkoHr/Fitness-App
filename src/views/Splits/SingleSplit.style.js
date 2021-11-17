@@ -27,7 +27,7 @@ const SingleSplitEl = styled.main`
 		background-color: var(--dark-color);
 	}
 
-	.dragging {
+	.current-drag {
 		z-index: 7;
 	}
 

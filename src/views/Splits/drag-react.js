@@ -9,6 +9,30 @@ const DragObject = ({
 	children,
 }) => {
 	const dragInfo = useRef({ item: null, initCoords: null, dragging: false });
+
+	const isColliding = item => {
+		return item2 => {
+			const {
+				left: targetX,
+				top: targetY,
+				width: targetWidth,
+				height: targetHeight,
+			} = item.getBoundingClientRect();
+
+			const { left, top, width, height } = item2.getBoundingClientRect();
+			if (
+				targetX + targetWidth >= left &&
+				targetX <= left + width &&
+				targetY + targetHeight >= top &&
+				targetY <= top + height
+			) {
+				return true;
+			}
+
+			return false;
+		};
+	};
+
 	const startDragging = (e, data, isTouchEvent) => {
 		e.preventDefault();
 		startCb && startCb();
@@ -35,7 +59,6 @@ const DragObject = ({
 	};
 
 	const moveDraggableObject = (e, isTouchEvent) => {
-		if (dragInfo.dragging === false) console.log(dragInfo);
 		if (!dragInfo.current.dragging) return;
 
 		const source = isTouchEvent ? e.touches[0] : e;
@@ -47,35 +70,18 @@ const DragObject = ({
 	};
 
 	const stopDrag = e => {
-		console.log(dragData);
-
-		endCb && endCb();
-		e.target.classList.remove('current-drag');
-		const {
-			left: targetX,
-			top: targetY,
-			width: targetWidth,
-			height: targetHeight,
-		} = e.target.getBoundingClientRect();
-		dragInfo.current.item.style.transform = `translate(0, 0)`;
-		dragInfo.current.dragging = false;
+		const isDroppable = isColliding(e.target);
 
 		for (const dropBox of dropBoxes) {
-			console.log(dropBox);
-			const { left, top, width, height } =
-				dropBox.current.getBoundingClientRect();
+			if (!isDroppable(dropBox.current)) continue;
 
-			if (
-				targetX + targetWidth >= left &&
-				targetX <= left + width &&
-				targetY + targetHeight >= top &&
-				targetY <= top + height
-			) {
-				dropCb && dropCb(e, dragInfo);
-				break;
-			}
+			dropCb && dropCb(e, dragInfo);
+			break;
 		}
-
+		endCb && endCb();
+		e.target.classList.remove('current-drag');
+		dragInfo.current.item.style.transform = `translate(0, 0)`;
+		dragInfo.current.dragging = false;
 		document.removeEventListener('mousemove', moveDraggableObject);
 	};
 

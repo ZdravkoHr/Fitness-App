@@ -41,6 +41,24 @@ const SingleSplit = () => {
 		setSplitWorkouts([...splitWorkouts, newWorkout]);
 	};
 
+	const moveHandler = (e, { isColliding }) => {
+		const parent = e.target.parentNode.parentNode;
+		const dragObjects = parent.querySelectorAll('.drag-object');
+		const isOverObject = isColliding(e.target);
+		dragObjects.forEach(object => {
+			//console.log(object === e.target.parentNode);
+			if (object === e.target.parentNode) return;
+			if (isOverObject(object)) {
+				console.log('updating');
+				setSplitWorkouts([...splitWorkouts.reverse()]);
+			}
+
+			// if (isOverObject(object)) {
+			// 	console.log(object);
+			// }
+		});
+	};
+
 	const removeWorkout = (e, dragInfo) => {
 		const workoutIndex = splitWorkouts.findIndex(
 			workout => workout.sampleId === dragInfo.current.data.sampleId
@@ -81,7 +99,9 @@ const SingleSplit = () => {
 									key={workout.id}
 									dropBoxes={[dropBox]}
 									dropCb={dropData}
+									moveCb={moveHandler}
 									dragData={workout}
+									className='drag-object'
 								>
 									<WorkoutBox workout={workout} />
 								</DragObject>

@@ -3,10 +3,12 @@ import { useRef, useEffect } from 'react';
 const DragObject = ({
 	dropBoxes,
 	startCb,
+	moveCb,
 	endCb,
 	dropCb,
 	dragData,
 	children,
+	...rest
 }) => {
 	const dragInfo = useRef({ item: null, initCoords: null, dragging: false });
 
@@ -65,8 +67,9 @@ const DragObject = ({
 		const { height, width } = dragInfo.current.item.getBoundingClientRect();
 		const xDiff = source.clientX - dragInfo.current.initCoords.x - width / 2;
 		const yDiff = source.clientY - dragInfo.current.initCoords.y - height / 2;
-
 		dragInfo.current.item.style.transform = `translate(${xDiff}px, ${yDiff}px)`;
+
+		moveCb && moveCb(e, { isColliding });
 	};
 
 	const stopDrag = e => {
@@ -96,6 +99,7 @@ const DragObject = ({
 			onTouchStart={e => startDragging(e, dragData, true)}
 			onTouchMove={e => moveDraggableObject(e, true)}
 			onTouchEnd={e => stopDrag(e)}
+			{...rest}
 		>
 			{children}
 		</div>

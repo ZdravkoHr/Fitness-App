@@ -38,7 +38,6 @@ const DragObject = ({
 
 	const clearDragElement = () => {
 		if (!dragInfo.current.item) return;
-		console.log('HEYOO, mouse left');
 		dragInfo.current.item.classList.remove('current-drag');
 		dragInfo.current.item.style.transform = `translate(0, 0)`;
 		dragInfo.current.dragging = false;
@@ -82,11 +81,10 @@ const DragObject = ({
 		const yDiff = source.clientY - dragInfo.current.initCoords.y - height / 2;
 		dragInfo.current.item.style.transform = `translate(${xDiff}px, ${yDiff}px)`;
 
-		moveCb && moveCb(e, { isColliding });
+		moveCb && moveCb(e, { isColliding, dragInfo });
 	};
 
 	const stopDrag = e => {
-		console.log('executing stopdrag');
 		const isDroppable = isColliding(e.target);
 
 		for (const dropBox of dropBoxes) {
@@ -95,7 +93,7 @@ const DragObject = ({
 			dropCb && dropCb(e, dragInfo);
 			break;
 		}
-		endCb && endCb();
+		endCb && endCb(e);
 		clearDragElement();
 		document.body.removeEventListener('mouseleave', clearDragElement);
 	};

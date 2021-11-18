@@ -27,6 +27,7 @@ const SingleSplit = () => {
 
 	const dropBox = useRef();
 	const deleteArea = useRef();
+	const rightShifts = useRef(0);
 
 	const DeleteArea = () => {
 		return (
@@ -41,28 +42,70 @@ const SingleSplit = () => {
 		setSplitWorkouts([...splitWorkouts, newWorkout]);
 	};
 
-	const moveHandler = (e, { isColliding }) => {
-		// const parent = e.target.parentNode.parentNode;
-		// const dragObjects = parent.querySelectorAll('.drag-object');
-		// const isOverObject = isColliding(e.target);
-		// dragObjects.forEach(object => {
-		// 	//console.log(object === e.target.parentNode);
-		// 	if (object === e.target.parentNode) return;
-		// 	if (isOverObject(object)) {
-		// 		console.log('updating');
-		// 		setSplitWorkouts([...splitWorkouts.reverse()]);
-		// 	}
-		// 	// if (isOverObject(object)) {
-		// 	// 	console.log(object);
-		// 	// }
-		// });
+	const getTranslateXValue = el => {
+		const str = el.style.transform;
+		const lastSymbol = str.includes('X') ? ')' : ',';
+		const startIndex = str.indexOf('(') + 1;
+		const endIndex = str.indexOf(lastSymbol);
+		const pxValue = str.slice(startIndex, endIndex);
+		const numValue = Number(pxValue.slice(0, -2));
+
+		return { pxValue, numValue };
+	};
+
+	const splitDragEndHandler = e => {
+		const id = e.target.parentNode.dataset.key;
+		const index = splitWorkouts.findIndex(workout => workout.sampleId === id);
+		const workoutsRef = [...splitWorkouts];
+		const item = workoutsRef.splice(index, 1);
+
+		workoutsRef.splice(index + rightShifts.current, 0, ...item);
+		console.log(workoutsRef);
+
+		console.log(
+			e.target.parentNode.parentNode.querySelectorAll('.drag-object')
+		);
+		e.target.parentNode.parentNode
+			.querySelectorAll('.drag-object')
+			.forEach(object => (object.style.transform = 'translate(0, 0)'));
+		setSplitWorkouts(workoutsRef);
+		setShowDeleteArea(false);
+	};
+
+	const moveHandler = (e, { isColliding, dragInfo }) => {
+		const parent = e.target.parentNode.parentNode;
+		const dragObjects = parent.querySelectorAll('.drag-object');
+		const isOverObject = isColliding(e.target);
+
+		dragObjects.forEach(object => {
+			if (object === e.target.parentNode) return;
+			object.style.outline = '3px solid transparent';
+			if (!isOverObject(object)) return;
+			const { x: targetX, width: targetWidth } =
+				e.target.getBoundingClientRect();
+
+			const { x: objX, width: objWidth } = object.getBoundingClientRect();
+
+			if (
+				targetX <= objX + objWidth / 2 &&
+				targetX + targetWidth > objX + objWidth
+			) {
+				object.style.transform = `translateX(${objWidth}px)`;
+				rightShifts.current--;
+			}
+			const translateX = getTranslateXValue(object).numValue;
+			if (targetX + targetWidth >= objX + objWidth / 2 && targetX < objX) {
+				object.style.transform = `translateX(${translateX - objWidth}px)`;
+				rightShifts.current++;
+			}
+		});
 	};
 
 	const removeWorkout = (e, dragInfo) => {
 		const workoutIndex = splitWorkouts.findIndex(
 			workout => workout.sampleId === dragInfo.current.data.sampleId
 		);
-		console.log(splitWorkouts, dragInfo.current.data.sampleId, workoutIndex);
+
 		const workoutsCopy = [...splitWorkouts];
 		workoutsCopy.splice(workoutIndex, 1);
 		setSplitWorkouts(workoutsCopy);
@@ -76,7 +119,6 @@ const SingleSplit = () => {
 		document.addEventListener(
 			'touchstart',
 			e => {
-				console.log('preventing');
 				e.preventDefault();
 			},
 			{ passive: false }
@@ -98,9 +140,7 @@ const SingleSplit = () => {
 									key={workout.id}
 									dropBoxes={[dropBox]}
 									dropCb={dropData}
-									moveCb={moveHandler}
 									dragData={workout}
-									className='drag-object'
 								>
 									<WorkoutBox workout={workout} />
 								</DragObject>
@@ -113,11 +153,14 @@ const SingleSplit = () => {
 							return (
 								<DragObject
 									key={workout.sampleId}
+									data-key={workout.sampleId}
 									dragData={workout}
 									dropBoxes={[deleteArea]}
 									startCb={() => setShowDeleteArea(true)}
-									endCb={() => setShowDeleteArea(false)}
+									moveCb={moveHandler}
+									endCb={splitDragEndHandler}
 									dropCb={removeWorkout}
+									className='drag-object'
 								>
 									<WorkoutBox workout={workout} />
 								</DragObject>

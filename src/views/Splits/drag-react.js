@@ -73,6 +73,7 @@ const DragObject = ({
 	};
 
 	const stopDrag = e => {
+		console.log('executing stopdrag');
 		const isDroppable = isColliding(e.target);
 
 		for (const dropBox of dropBoxes) {
@@ -88,9 +89,9 @@ const DragObject = ({
 		document.removeEventListener('mousemove', moveDraggableObject);
 	};
 
-	useEffect(() => {
-		document.addEventListener('mouseleave', stopDrag);
-	}, []);
+	// useEffect(() => {
+	// 	document.addEventListener('mouseleave', stopDrag);
+	// }, []);
 
 	return (
 		<div

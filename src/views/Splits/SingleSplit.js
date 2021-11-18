@@ -42,21 +42,20 @@ const SingleSplit = () => {
 	};
 
 	const moveHandler = (e, { isColliding }) => {
-		const parent = e.target.parentNode.parentNode;
-		const dragObjects = parent.querySelectorAll('.drag-object');
-		const isOverObject = isColliding(e.target);
-		dragObjects.forEach(object => {
-			//console.log(object === e.target.parentNode);
-			if (object === e.target.parentNode) return;
-			if (isOverObject(object)) {
-				console.log('updating');
-				setSplitWorkouts([...splitWorkouts.reverse()]);
-			}
-
-			// if (isOverObject(object)) {
-			// 	console.log(object);
-			// }
-		});
+		// const parent = e.target.parentNode.parentNode;
+		// const dragObjects = parent.querySelectorAll('.drag-object');
+		// const isOverObject = isColliding(e.target);
+		// dragObjects.forEach(object => {
+		// 	//console.log(object === e.target.parentNode);
+		// 	if (object === e.target.parentNode) return;
+		// 	if (isOverObject(object)) {
+		// 		console.log('updating');
+		// 		setSplitWorkouts([...splitWorkouts.reverse()]);
+		// 	}
+		// 	// if (isOverObject(object)) {
+		// 	// 	console.log(object);
+		// 	// }
+		// });
 	};
 
 	const removeWorkout = (e, dragInfo) => {

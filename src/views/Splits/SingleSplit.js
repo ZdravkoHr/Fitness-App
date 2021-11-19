@@ -79,22 +79,30 @@ const SingleSplit = () => {
 
 		dragObjects.forEach(object => {
 			if (object === e.target.parentNode) return;
-			object.style.outline = '3px solid transparent';
 			if (!isOverObject(object)) return;
 			const { x: targetX, width: targetWidth } =
 				e.target.getBoundingClientRect();
 
 			const { x: objX, width: objWidth } = object.getBoundingClientRect();
+			const translateX = getTranslateXValue(object).numValue;
+			if (Math.abs(translateX) > objWidth + 5) return;
+			console.log(translateX, objWidth);
 
 			if (
 				targetX <= objX + objWidth / 2 &&
 				targetX + targetWidth > objX + objWidth
 			) {
-				object.style.transform = `translateX(${objWidth}px)`;
+				if (Math.abs(translateX + objWidth) > objWidth + 5) return;
+				object.style.transform = `translateX(${translateX + objWidth}px)`;
 				rightShifts.current--;
 			}
-			const translateX = getTranslateXValue(object).numValue;
-			if (targetX + targetWidth >= objX + objWidth / 2 && targetX < objX) {
+
+			if (
+				targetX + targetWidth >= objX + objWidth / 2 &&
+				targetX < objX &&
+				targetX > objWidth
+			) {
+				if (Math.abs(translateX - objWidth) > objWidth + 5) return;
 				object.style.transform = `translateX(${translateX - objWidth}px)`;
 				rightShifts.current++;
 			}
@@ -141,6 +149,7 @@ const SingleSplit = () => {
 									dropBoxes={[dropBox]}
 									dropCb={dropData}
 									dragData={workout}
+									className='drag-object'
 								>
 									<WorkoutBox workout={workout} />
 								</DragObject>

@@ -5,7 +5,7 @@ const WorkoutBox = ({ workout, ...rest }) => {
 
 	const [{ isDragging }, drag] = useDrag(() => ({
 		type: 'workout',
-		item: workout,
+		item: { id: workout.id },
 		collect: monitor => ({
 			isDragging: !!monitor.isDragging(),
 		}),

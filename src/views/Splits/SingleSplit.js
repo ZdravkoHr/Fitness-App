@@ -44,98 +44,13 @@ const SingleSplit = () => {
 		);
 	};
 
-	const addSplitsWorkout = workout => {
-		//setSplitWorkouts([...splitWorkouts, { ...workout, sampleId: uuid() }]);
+	const addSplitWorkout = id => {
+		console.log(allWorkouts, id);
+		const workout = allWorkouts.find(workout => workout.id === id);
 		setSplitWorkouts(workouts => {
 			return [...workouts, { ...workout, sampleId: uuid() }];
 		});
 	};
-
-	useEffect(() => {
-		console.log(splitWorkouts);
-	}, [splitWorkouts]);
-
-	// const dropData = (e, dragInfo) => {
-	// 	const newWorkout = { ...dragInfo.current.data, sampleId: uuid() };
-	// 	setSplitWorkouts([...splitWorkouts, newWorkout]);
-	// };
-
-	const getTranslateXValue = el => {
-		const str = el.style.transform;
-		const lastSymbol = str.includes('X') ? ')' : ',';
-		const startIndex = str.indexOf('(') + 1;
-		const endIndex = str.indexOf(lastSymbol);
-		const pxValue = str.slice(startIndex, endIndex);
-		const numValue = Number(pxValue.slice(0, -2));
-
-		return { pxValue, numValue };
-	};
-
-	// const splitDragEndHandler = e => {
-	// 	const id = e.target.parentNode.dataset.key;
-	// 	const index = splitWorkouts.findIndex(workout => workout.sampleId === id);
-	// 	const workoutsRef = [...splitWorkouts];
-	// 	const item = workoutsRef.splice(index, 1);
-
-	// 	workoutsRef.splice(index + rightShifts.current, 0, ...item);
-	// 	console.log(workoutsRef);
-
-	// 	console.log(
-	// 		e.target.parentNode.parentNode.querySelectorAll('.drag-object')
-	// 	);
-	// 	e.target.parentNode.parentNode
-	// 		.querySelectorAll('.drag-object')
-	// 		.forEach(object => (object.style.transform = 'translate(0, 0)'));
-	// 	setSplitWorkouts(workoutsRef);
-	// 	setShowDeleteArea(false);
-	// };
-
-	const moveHandler = (e, { isColliding, dragInfo }) => {
-		const parent = e.target.parentNode.parentNode;
-		const dragObjects = parent.querySelectorAll('.drag-object');
-		const isOverObject = isColliding(e.target);
-
-		dragObjects.forEach(object => {
-			if (object === e.target.parentNode) return;
-			if (!isOverObject(object)) return;
-			const { x: targetX, width: targetWidth } =
-				e.target.getBoundingClientRect();
-
-			const { x: objX, width: objWidth } = object.getBoundingClientRect();
-			const translateX = getTranslateXValue(object).numValue;
-			if (Math.abs(translateX) > objWidth + 5) return;
-			console.log(translateX, objWidth);
-
-			if (
-				targetX <= objX + objWidth / 2 &&
-				targetX + targetWidth > objX + objWidth
-			) {
-				if (Math.abs(translateX + objWidth) > objWidth + 5) return;
-				object.style.transform = `translateX(${translateX + objWidth}px)`;
-				rightShifts.current--;
-			}
-
-			if (
-				targetX + targetWidth >= objX + objWidth / 2 &&
-				targetX < objX &&
-				targetX > objWidth
-			) {
-				if (Math.abs(translateX - objWidth) > objWidth + 5) return;
-				object.style.transform = `translateX(${translateX - objWidth}px)`;
-				rightShifts.current++;
-			}
-		});
-	};
-
-	// const removeWorkout = (e, dragInfo) => {
-	// 	const workoutIndex = splitWorkouts.findIndex(
-	// 		workout => workout.sampleId === dragInfo.current.data.sampleId
-	// 	);
-
-	// 	const workoutsCopy = [...splitWorkouts];
-	// 	workoutsCopy.splice(workoutIndex, 1);
-	// 	setSplitWorkouts(workoutsCopy);
-	// };
 
 	useEffect(() => {
 		setAllWorkouts([restObj, ...workouts]);
@@ -172,7 +87,7 @@ const SingleSplit = () => {
 
 						<DropArea
 							splitWorkouts={splitWorkouts}
-							addWorkout={addSplitsWorkout}
+							addWorkout={addSplitWorkout}
 						></DropArea>
 					</DndProvider>
 				</div>

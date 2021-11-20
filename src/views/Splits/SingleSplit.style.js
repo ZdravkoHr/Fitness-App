@@ -31,17 +31,13 @@ const SingleSplitEl = styled.main`
 		z-index: 7;
 	}
 
-	.drag-object {
-		margin-right: 5px;
-		margin-bottom: 5px;
-	}
-
 	.rest,
 	.workout {
 		border-radius: 5px;
 		padding: 10px;
 		cursor: pointer;
-
+		margin-right: 5px;
+		margin-bottom: 5px;
 		text-transform: uppercase;
 		user-select: none;
 	}

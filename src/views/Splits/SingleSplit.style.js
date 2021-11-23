@@ -17,29 +17,8 @@ const SingleSplitEl = styled.main`
 		align-items: flex-start;
 	}
 
-	.rest {
-		position: relative;
-		background-color: var(--success-color);
-	}
-
-	.workout {
-		position: relative;
-		background-color: var(--dark-color);
-	}
-
 	.current-drag {
 		z-index: 7;
-	}
-
-	.rest,
-	.workout {
-		border-radius: 5px;
-		padding: 10px;
-		cursor: pointer;
-		margin-right: 5px;
-		margin-bottom: 5px;
-		text-transform: uppercase;
-		user-select: none;
 	}
 
 	.delete-area {

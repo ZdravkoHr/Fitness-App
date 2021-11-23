@@ -1,34 +1,45 @@
-import { useDrop } from 'react-dnd';
 import WorkoutBox from 'components/Splits/WorkoutBox';
+import { Droppable } from 'react-beautiful-dnd';
+import uuid from 'react-uuid';
 
 const DropArea = ({ splitWorkouts, addWorkout }) => {
-	const [, dropBox] = useDrop(
-		() => ({
-			accept: 'workout',
-			drop: ({ id }) => addWorkout(id),
-		}),
-		[addWorkout]
-	);
+	const getArea = provided => {
+		return splitWorkouts.map(workout => {
+			return (
+				<p
+					{...provided.droppableProps}
+					ref={provided.innerRef}
+					key={workout.sampleId}
+				>
+					asd
+				</p>
+				// <WorkoutBox
+				// 	{...provided.droppableProps}
+				// 	ref={provided.innerRef}
+				// 	key={workout.sampleId}
+				// 	workout={workout}
+				// >
+				// 	{provided.placeholder}
+				// </WorkoutBox>
+			);
+		});
+	};
+
 	return (
-		<div className='split-workouts-field' ref={dropBox}>
-			{splitWorkouts.map(workout => {
-				return (
-					// <DragObject
-					// 	key={workout.sampleId}
-					// 	data-key={workout.sampleId}
-					// 	dragData={workout}
-					// 	dropBoxes={[deleteArea]}
-					// 	startCb={() => setShowDeleteArea(true)}
-					// 	moveCb={moveHandler}
-					// 	endCb={splitDragEndHandler}
-					// 	dropCb={removeWorkout}
-					// 	className='drag-object'
-					// >
-					<WorkoutBox key={workout.sampleId} workout={workout} />
-					// </DragObject>
-				);
-			})}
-		</div>
+		<Droppable droppableId={uuid()} className='split-workouts-field'>
+			{provided => {
+				return splitWorkouts.map(workout => {
+					return (
+						<div ref={provided.innerRef} key={workout.sampleId}>
+							{/* <WorkoutBox {...provided.droppableProps} workout={workout}>
+								{provided.placeholder}
+							</WorkoutBox> */}
+							text
+						</div>
+					);
+				});
+			}}
+		</Droppable>
 	);
 };
 

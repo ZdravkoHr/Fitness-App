@@ -2,14 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import uuid from 'react-uuid';
 import SingleSplitEl from './SingleSplit.style';
-//import { DragObject } from './drag-react';
-//import { DndProvider } from 'react-dnd';
-//import { TouchBackend } from 'react-dnd-touch-backend';
-import { DndProvider } from 'react-dnd';
-import { TouchBackend } from 'react-dnd-touch-backend';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import WorkoutBox from 'components/Splits/WorkoutBox';
 import DropArea from './DropArea.js';
 import DeleteIcon from '@material-ui/icons/Delete';
+import { Clone } from 'components/Splits/WorkoutBox.style';
 import { useSelector } from 'react-redux';
 import { workoutsSelector } from 'store';
 
@@ -52,6 +49,12 @@ const SingleSplit = () => {
 		});
 	};
 
+	const getClone = workout => (provided, snapshot, rubric) => {
+		return <WorkoutBox workout={workout}></WorkoutBox>;
+	};
+
+	const handleDragEnd = () => {};
+
 	useEffect(() => {
 		setAllWorkouts([restObj, ...workouts]);
 	}, [workouts]);
@@ -65,31 +68,63 @@ const SingleSplit = () => {
 
 			<div className='split-info'>
 				<div className='workouts-sequence'>
-					<DndProvider
-						backend={TouchBackend}
-						options={{ enableMouseEvents: true }}
-					>
-						<div className='all-workouts-field'>
-							{allWorkouts.map(workout => {
+					<DragDropContext onDragEnd={handleDragEnd}>
+						<Droppable
+							droppableId={uuid()}
+							type='workout'
+							isDropDisabled={true}
+						>
+							{(provided, snapshot) => {
 								return (
-									// <DragObject
-									// 	key={workout.id}
-									// 	dropBoxes={[dropBox]}
-									// 	dropCb={dropData}
-									// 	dragData={workout}
-									// 	className='drag-object'
-									// >
-									<WorkoutBox key={workout.id} workout={workout} />
-									// </DragObject>
-								);
-							})}
-						</div>
+									<div
+										className='all-workouts-field'
+										ref={provided.innerRef}
+										{...provided.droppableProps}
+									>
+										{allWorkouts.map((workout, index) => {
+											return (
+												<Draggable
+													key={workout.id}
+													draggableId={workout.id}
+													index={index}
+												>
+													{(provided, snapshot) => {
+														return (
+															<>
+																<div
+																	ref={provided.innerRef}
+																	{...provided.draggableProps}
+																	{...provided.dragHandleProps}
+																>
+																	<WorkoutBox workout={workout}></WorkoutBox>
+																</div>
 
-						<DropArea
+																{snapshot.isDragging ? (
+																	// <Clone>{workout.name}</Clone>
+																	<Clone className='workout'>
+																		<p>{workout.name}</p>
+																	</Clone>
+																) : (
+																	// <WorkoutBox workout={workout}></WorkoutBox>
+																	''
+																)}
+															</>
+														);
+													}}
+												</Draggable>
+											);
+										})}
+										{snapshot.isDragging && <p>test</p>}
+									</div>
+								);
+							}}
+						</Droppable>
+
+						{/* <DropArea
 							splitWorkouts={splitWorkouts}
 							addWorkout={addSplitWorkout}
-						></DropArea>
-					</DndProvider>
+						></DropArea> */}
+					</DragDropContext>
 				</div>
 			</div>
 			<p onClick={() => setTest(test + 1)}>Increase</p>

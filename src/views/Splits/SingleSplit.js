@@ -37,19 +37,31 @@ const SingleSplit = () => {
 		);
 	};
 
-	const addSplitWorkout = id => {
-		console.log(allWorkouts, id);
-		const workout = allWorkouts.find(workout => workout.id === id);
-		setSplitWorkouts(workouts => {
-			return [...workouts, { ...workout, sampleId: uuid() }];
-		});
+	const addSplitWorkout = info => {
+		const { index: sourceIndex } = info.source;
+		const { index: destIndex } = info.destination;
+		if (info.source.droppableId === 'workouts') {
+			const workout = { ...allWorkouts[sourceIndex], sampleId: uuid() };
+			setSplitWorkouts(workouts => {
+				const newWorkouts = [...workouts];
+				newWorkouts.splice(destIndex, 0, workout);
+				return newWorkouts;
+			});
+		} else {
+			setSplitWorkouts(workouts => {
+				const newWorkouts = [...workouts];
+				const [reorderItem] = newWorkouts.splice(sourceIndex, 1);
+				const newItem = { ...reorderItem, sampleId: uuid() };
+				newWorkouts.splice(destIndex, 0, newItem);
+				return newWorkouts;
+			});
+		}
 	};
 
 	const reorder = (setter, oldIndex, newIndex) => {
 		if (oldIndex === newIndex) return;
 
 		setter(items => {
-			console.log(items);
 			const newItems = [...items];
 			const [removedItem] = newItems.splice(oldIndex, 1);
 			newItems.splice(newIndex, 0, removedItem);
@@ -58,10 +70,22 @@ const SingleSplit = () => {
 		});
 	};
 
-	const handleDragEnd = info => {
+	const reorderWorkouts = info => {
 		const oldIndex = info.source.index;
 		const newIndex = info.destination.index;
 		reorder(setAllWorkouts, oldIndex, newIndex);
+	};
+
+	const handleDragEnd = info => {
+		if (!info.destination) return;
+		switch (info.destination.droppableId) {
+			case 'workouts':
+				reorderWorkouts(info);
+				break;
+			case 'split-workouts':
+				addSplitWorkout(info);
+				break;
+		}
 	};
 
 	useEffect(() => {
@@ -78,7 +102,7 @@ const SingleSplit = () => {
 				<div className='workouts-sequence'>
 					<DragDropContext onDragEnd={handleDragEnd}>
 						<Droppable
-							droppableId={'WORKOUT'}
+							droppableId={'workouts'}
 							type='workout'
 							direction='horizontal'
 						>
@@ -118,10 +142,10 @@ const SingleSplit = () => {
 							}}
 						</Droppable>
 
-						{/* <DropArea
+						<DropArea
 							splitWorkouts={splitWorkouts}
 							addWorkout={addSplitWorkout}
-						></DropArea> */}
+						></DropArea>
 					</DragDropContext>
 				</div>
 			</div>

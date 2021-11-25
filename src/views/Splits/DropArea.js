@@ -1,46 +1,63 @@
 import WorkoutBox from 'components/Splits/WorkoutBox';
-import { Droppable } from 'react-beautiful-dnd';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 import uuid from 'react-uuid';
 
 const DropArea = ({ splitWorkouts, addWorkout }) => {
-	const getArea = provided => {
-		return splitWorkouts.map(workout => {
-			return (
-				<p
-					{...provided.droppableProps}
-					ref={provided.innerRef}
-					key={workout.sampleId}
-				>
-					asd
-				</p>
-				// <WorkoutBox
-				// 	{...provided.droppableProps}
-				// 	ref={provided.innerRef}
-				// 	key={workout.sampleId}
-				// 	workout={workout}
-				// >
-				// 	{provided.placeholder}
-				// </WorkoutBox>
-			);
-		});
-	};
-
 	return (
-		<Droppable droppableId={uuid()} className='split-workouts-field'>
+		<Droppable
+			droppableId='split-workouts'
+			type='workout'
+			className='split-workouts-field'
+			direction='horizontal'
+		>
 			{provided => {
-				return splitWorkouts.map(workout => {
-					return (
-						<div ref={provided.innerRef} key={workout.sampleId}>
-							{/* <WorkoutBox {...provided.droppableProps} workout={workout}>
-								{provided.placeholder}
-							</WorkoutBox> */}
-							text
-						</div>
-					);
-				});
+				return (
+					<div
+						ref={provided.innerRef}
+						{...provided.droppableProps}
+						className='split-workouts-field'
+					>
+						{splitWorkouts.map((workout, index) => {
+							return (
+								<Draggable
+									key={workout.sampleId}
+									draggableId={workout.sampleId}
+									index={index}
+								>
+									{provided => {
+										return (
+											<div
+												ref={provided.innerRef}
+												{...provided.draggableProps}
+												{...provided.dragHandleProps}
+												type='workout'
+											>
+												<WorkoutBox workout={workout} />
+											</div>
+										);
+									}}
+								</Draggable>
+							);
+						})}
+
+						{provided.placeholder}
+					</div>
+				);
 			}}
 		</Droppable>
 	);
 };
 
 export default DropArea;
+
+// {splitWorkouts.map(workout => {
+// 	return (
+
+// 			{splitWorkouts.map((workout, index) => {
+// 				return (
+//
+// 				);
+// 			})}
+
+// 	);
+// })}

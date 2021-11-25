@@ -6,9 +6,9 @@ import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import WorkoutBox from 'components/Splits/WorkoutBox';
 import DropArea from './DropArea.js';
 import DeleteIcon from '@material-ui/icons/Delete';
-import { Clone } from 'components/Splits/WorkoutBox.style';
 import { useSelector } from 'react-redux';
 import { workoutsSelector } from 'store';
+import { Reorder } from '@material-ui/icons';
 
 const SingleSplit = () => {
 	const { action } = useParams();
@@ -23,15 +23,11 @@ const SingleSplit = () => {
 		id: uuid(),
 	};
 
-	const [test, setTest] = useState(0);
 	const [splitWorkouts, setSplitWorkouts] = useState([]);
 	const [allWorkouts, setAllWorkouts] = useState([]);
 	const [showDeleteArea, setShowDeleteArea] = useState(false);
 
-	const workoutsField = useRef();
-
 	const deleteArea = useRef();
-	const rightShifts = useRef(0);
 
 	const DeleteArea = () => {
 		return (
@@ -49,11 +45,24 @@ const SingleSplit = () => {
 		});
 	};
 
-	const getClone = workout => (provided, snapshot, rubric) => {
-		return <WorkoutBox workout={workout}></WorkoutBox>;
+	const reorder = (setter, oldIndex, newIndex) => {
+		if (oldIndex === newIndex) return;
+
+		setter(items => {
+			console.log(items);
+			const newItems = [...items];
+			const [removedItem] = newItems.splice(oldIndex, 1);
+			newItems.splice(newIndex, 0, removedItem);
+
+			return newItems;
+		});
 	};
 
-	const handleDragEnd = () => {};
+	const handleDragEnd = info => {
+		const oldIndex = info.source.index;
+		const newIndex = info.destination.index;
+		reorder(setAllWorkouts, oldIndex, newIndex);
+	};
 
 	useEffect(() => {
 		setAllWorkouts([restObj, ...workouts]);
@@ -63,16 +72,15 @@ const SingleSplit = () => {
 		<SingleSplitEl className='container single-split'>
 			<div className='title'>
 				<h1>{action === 'add' ? 'Add a new split' : 'Edit your split'}</h1>
-				{test}
 			</div>
 
 			<div className='split-info'>
 				<div className='workouts-sequence'>
 					<DragDropContext onDragEnd={handleDragEnd}>
 						<Droppable
-							droppableId={uuid()}
+							droppableId={'WORKOUT'}
 							type='workout'
-							isDropDisabled={true}
+							direction='horizontal'
 						>
 							{(provided, snapshot) => {
 								return (
@@ -88,33 +96,23 @@ const SingleSplit = () => {
 													draggableId={workout.id}
 													index={index}
 												>
-													{(provided, snapshot) => {
+													{provided => {
 														return (
-															<>
-																<div
-																	ref={provided.innerRef}
-																	{...provided.draggableProps}
-																	{...provided.dragHandleProps}
-																>
-																	<WorkoutBox workout={workout}></WorkoutBox>
-																</div>
-
-																{snapshot.isDragging ? (
-																	// <Clone>{workout.name}</Clone>
-																	<Clone className='workout'>
-																		<p>{workout.name}</p>
-																	</Clone>
-																) : (
-																	// <WorkoutBox workout={workout}></WorkoutBox>
-																	''
-																)}
-															</>
+															<div
+																ref={provided.innerRef}
+																{...provided.draggableProps}
+																{...provided.dragHandleProps}
+																type='workout'
+																//style={{ marginRight: '10px' }}
+															>
+																<WorkoutBox workout={workout}></WorkoutBox>
+															</div>
 														);
 													}}
 												</Draggable>
 											);
 										})}
-										{snapshot.isDragging && <p>test</p>}
+										{provided.placeholder}
 									</div>
 								);
 							}}
@@ -127,7 +125,7 @@ const SingleSplit = () => {
 					</DragDropContext>
 				</div>
 			</div>
-			<p onClick={() => setTest(test + 1)}>Increase</p>
+
 			{showDeleteArea && DeleteArea()}
 		</SingleSplitEl>
 	);

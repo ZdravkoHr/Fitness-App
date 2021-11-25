@@ -23,10 +23,4 @@ const WorkoutBoxEl = styled.div`
 	}
 `;
 
-export const Clone = styled(WorkoutBoxEl)`
-	& {
-		cursor: grab;
-	}
-`;
-
 export default WorkoutBoxEl;

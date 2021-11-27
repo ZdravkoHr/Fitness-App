@@ -2,16 +2,17 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import uuid from 'react-uuid';
 import SingleSplitEl from './SingleSplit.style';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { DragObject } from './drag-react';
 import WorkoutBox from 'components/Splits/WorkoutBox';
-import DropArea from './DropArea.js';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { useSelector } from 'react-redux';
 import { workoutsSelector } from 'store';
-import { Reorder } from '@material-ui/icons';
 
 const SingleSplit = () => {
 	const { action } = useParams();
+	const rightShifts = useRef(0);
+
+	const [dragInfo, setDragInfo] = useState({});
 
 	const {
 		appData: { workouts },
@@ -26,7 +27,10 @@ const SingleSplit = () => {
 	const [splitWorkouts, setSplitWorkouts] = useState([]);
 	const [allWorkouts, setAllWorkouts] = useState([]);
 	const [showDeleteArea, setShowDeleteArea] = useState(false);
+	
+	const transitioningIndexes = useRef([]);
 
+	const dropBox = useRef();
 	const deleteArea = useRef();
 
 	const DeleteArea = () => {
@@ -37,60 +41,108 @@ const SingleSplit = () => {
 		);
 	};
 
-	const addSplitWorkout = info => {
-		const { index: sourceIndex } = info.source;
-		const { index: destIndex } = info.destination;
-		if (info.source.droppableId === 'workouts') {
-			const workout = { ...allWorkouts[sourceIndex], sampleId: uuid() };
-			setSplitWorkouts(workouts => {
-				const newWorkouts = [...workouts];
-				newWorkouts.splice(destIndex, 0, workout);
-				return newWorkouts;
-			});
-		} else {
-			setSplitWorkouts(workouts => {
-				const newWorkouts = [...workouts];
-				const [reorderItem] = newWorkouts.splice(sourceIndex, 1);
-				const newItem = { ...reorderItem, sampleId: uuid() };
-				newWorkouts.splice(destIndex, 0, newItem);
-				return newWorkouts;
-			});
-		}
+	
+
+	const dropData = (e, dragInfo) => {
+		const newWorkout = { ...dragInfo.current.data, sampleId: uuid() };
+		setSplitWorkouts([...splitWorkouts, newWorkout]);
 	};
 
-	const reorder = (setter, oldIndex, newIndex) => {
-		if (oldIndex === newIndex) return;
 
-		setter(items => {
-			const newItems = [...items];
-			const [removedItem] = newItems.splice(oldIndex, 1);
-			newItems.splice(newIndex, 0, removedItem);
+	const getTranslateXValue = el => {
+		const str = el.style.transform;
+		const lastSymbol = str.includes('X') ? ')' : ',';
+		const startIndex = str.indexOf('(') + 1;
+		const endIndex = str.indexOf(lastSymbol);
+		const pxValue = str.slice(startIndex, endIndex);
+		const numValue = Number(pxValue.slice(0, -2));
 
-			return newItems;
-		});
+		return { pxValue, numValue };
 	};
 
-	const reorderWorkouts = info => {
-		const oldIndex = info.source.index;
-		const newIndex = info.destination.index;
-		reorder(setAllWorkouts, oldIndex, newIndex);
+	const moveHandler = (e, { isColliding, dragInfo }) => {
+	
+		const parent = e.target.parentNode.parentNode;
+		const dragObjects = parent.querySelectorAll('.drag-object');
+		const isOverObject = isColliding(e.target);
+
+		// dragObjects.forEach((object, index) => {
+		// 	if (object === e.target.parentNode) return;
+		// 	if (transitioningIndexes.current.includes(index)) return;
+		// 	console.log(isOverObject(object))
+		// 	if (!isOverObject(object)) return;
+			
+			
+			
+		// 	const { x: targetX, width: targetWidth } =
+		// 		e.target.getBoundingClientRect();
+
+		// 	const { x: objX, width: objWidth } = object.getBoundingClientRect();
+		// 	const translateX = getTranslateXValue(object).numValue;
+		// 	if (Math.abs(translateX) > objWidth + 5) return;
+		// 	console.log(translateX, objWidth);
+
+		// 	if (
+		// 		targetX <= objX + objWidth / 2 &&
+		// 		targetX + targetWidth > objX + objWidth
+		// 	) {
+		// 		if (Math.abs(translateX + objWidth) > objWidth + 5) return;
+		// 		setSplitWorkouts(w => {
+		// 		const n = [...w];
+		// 		const f = n.shift();
+		// 		n.push(f);
+		// 		transitioningIndexes.current.push(0);
+		// 		return n;
+		// 	})
+		// 		rightShifts.current--;
+		// 	}
+
+		// 	if (
+		// 		targetX + targetWidth >= objX + objWidth / 2 &&
+		// 		targetX < objX &&
+		// 		targetX > objWidth
+		// 	) {
+		// 		if (Math.abs(translateX - objWidth) > objWidth + 5) return;
+		// 		object.style.transform = `translateX(${translateX - objWidth}px)`;
+		// 		rightShifts.current++;
+		// 	}
+		// });
+	};
+	const removeWorkout = (e, dragInfo) => {
+		const workoutIndex = splitWorkouts.findIndex(
+			workout => workout.sampleId === dragInfo.current.data.sampleId
+		);
+		console.log(splitWorkouts, dragInfo.current.data.sampleId, workoutIndex);
+		const workoutsCopy = [...splitWorkouts];
+		workoutsCopy.splice(workoutIndex, 1);
+		setSplitWorkouts(workoutsCopy);
 	};
 
-	const handleDragEnd = info => {
-		if (!info.destination) return;
-		switch (info.destination.droppableId) {
-			case 'workouts':
-				reorderWorkouts(info);
-				break;
-			case 'split-workouts':
-				addSplitWorkout(info);
-				break;
-		}
-	};
+	const handleStart = info => {
+		setShowDeleteArea(true);
+		console.log(info)
+		setDragInfo(info);
+	}
+
+	const handleEnd = () => {
+		setShowDeleteArea(false);
+		setDragInfo({})
+	}
 
 	useEffect(() => {
 		setAllWorkouts([restObj, ...workouts]);
 	}, [workouts]);
+
+	useEffect(() => {
+		document.addEventListener(
+			'touchstart',
+			e => {
+				console.log('preventing');
+				e.preventDefault();
+			},
+			{ passive: false }
+		);
+	}, []);
 
 	return (
 		<SingleSplitEl className='container single-split'>
@@ -98,55 +150,47 @@ const SingleSplit = () => {
 				<h1>{action === 'add' ? 'Add a new split' : 'Edit your split'}</h1>
 			</div>
 
+			{/* <WorkoutBox workout={dragInfo}/> */}
+
+	
+
 			<div className='split-info'>
 				<div className='workouts-sequence'>
-					<DragDropContext onDragEnd={handleDragEnd}>
-						<Droppable
-							droppableId={'workouts'}
-							type='workout'
-							direction='horizontal'
-						>
-							{(provided, snapshot) => {
-								return (
-									<div
-										className='all-workouts-field'
-										ref={provided.innerRef}
-										{...provided.droppableProps}
-									>
-										{allWorkouts.map((workout, index) => {
-											return (
-												<Draggable
-													key={workout.id}
-													draggableId={workout.id}
-													index={index}
-												>
-													{provided => {
-														return (
-															<div
-																ref={provided.innerRef}
-																{...provided.draggableProps}
-																{...provided.dragHandleProps}
-																type='workout'
-																//style={{ marginRight: '10px' }}
-															>
-																<WorkoutBox workout={workout}></WorkoutBox>
-															</div>
-														);
-													}}
-												</Draggable>
-											);
-										})}
-										{provided.placeholder}
-									</div>
-								);
-							}}
-						</Droppable>
+					<div className='all-workouts-field'>
+						{allWorkouts.map(workout => {
+							return (
+								<DragObject
+									key={workout.id}
+									dropBoxes={[dropBox]}
+									dropCb={dropData}
+									
+									dragData={workout}
+									className='drag-object'
+								>
+									<WorkoutBox workout={workout} />
+								</DragObject>
+							);
+						})}
+					</div>
 
-						<DropArea
-							splitWorkouts={splitWorkouts}
-							addWorkout={addSplitWorkout}
-						></DropArea>
-					</DragDropContext>
+					<div className='split-workouts-field' ref={dropBox}>
+						{splitWorkouts.map(workout => {
+							return (
+								<DragObject
+									key={workout.sampleId}
+									dragData={workout}
+									dropBoxes={[deleteArea]}
+									moveCb={moveHandler}
+									startCb={handleStart}
+									endCb={handleEnd}
+									dropCb={removeWorkout}
+									className="drag-object"
+								>
+									<WorkoutBox workout={workout} />
+								</DragObject>
+							);
+						})}
+					</div>
 				</div>
 			</div>
 

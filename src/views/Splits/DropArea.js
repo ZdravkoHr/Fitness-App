@@ -8,7 +8,7 @@ const DropArea = ({ splitWorkouts, addWorkout }) => {
 			droppableId='split-workouts'
 			type='workout'
 			className='split-workouts-field'
-			direction='horizontal'
+			direction='vertical'
 		>
 			{provided => {
 				return (

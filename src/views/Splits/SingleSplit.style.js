@@ -17,8 +17,8 @@ const SingleSplitEl = styled.main`
 		align-items: flex-start;
 	}
 
-	.current-drag {
-		z-index: 7;
+	.split-workouts-field .dragging {
+		opacity: 0;
 	}
 
 	.delete-area {

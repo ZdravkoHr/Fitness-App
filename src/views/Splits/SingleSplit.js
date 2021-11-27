@@ -27,7 +27,7 @@ const SingleSplit = () => {
 	const [splitWorkouts, setSplitWorkouts] = useState([]);
 	const [allWorkouts, setAllWorkouts] = useState([]);
 	const [showDeleteArea, setShowDeleteArea] = useState(false);
-	
+
 	const transitioningIndexes = useRef([]);
 
 	const dropBox = useRef();
@@ -41,13 +41,10 @@ const SingleSplit = () => {
 		);
 	};
 
-	
-
 	const dropData = (e, dragInfo) => {
 		const newWorkout = { ...dragInfo.current.data, sampleId: uuid() };
-		setSplitWorkouts([...splitWorkouts, newWorkout]);
+		setSplitWorkouts(workouts => [...workouts, newWorkout]);
 	};
-
 
 	const getTranslateXValue = el => {
 		const str = el.style.transform;
@@ -61,7 +58,6 @@ const SingleSplit = () => {
 	};
 
 	const moveHandler = (e, { isColliding, dragInfo }) => {
-	
 		const parent = e.target.parentNode.parentNode;
 		const dragObjects = parent.querySelectorAll('.drag-object');
 		const isOverObject = isColliding(e.target);
@@ -71,9 +67,7 @@ const SingleSplit = () => {
 		// 	if (transitioningIndexes.current.includes(index)) return;
 		// 	console.log(isOverObject(object))
 		// 	if (!isOverObject(object)) return;
-			
-			
-			
+
 		// 	const { x: targetX, width: targetWidth } =
 		// 		e.target.getBoundingClientRect();
 
@@ -108,7 +102,7 @@ const SingleSplit = () => {
 		// 	}
 		// });
 	};
-	const removeWorkout = (e, dragInfo) => {
+	const deleteWorkout = (e, dragInfo) => {
 		const workoutIndex = splitWorkouts.findIndex(
 			workout => workout.sampleId === dragInfo.current.data.sampleId
 		);
@@ -120,14 +114,14 @@ const SingleSplit = () => {
 
 	const handleStart = info => {
 		setShowDeleteArea(true);
-		console.log(info)
+		console.log(info);
 		setDragInfo(info);
-	}
+	};
 
 	const handleEnd = () => {
 		setShowDeleteArea(false);
-		setDragInfo({})
-	}
+		setDragInfo({});
+	};
 
 	useEffect(() => {
 		setAllWorkouts([restObj, ...workouts]);
@@ -152,8 +146,6 @@ const SingleSplit = () => {
 
 			{/* <WorkoutBox workout={dragInfo}/> */}
 
-	
-
 			<div className='split-info'>
 				<div className='workouts-sequence'>
 					<div className='all-workouts-field'>
@@ -163,7 +155,6 @@ const SingleSplit = () => {
 									key={workout.id}
 									dropBoxes={[dropBox]}
 									dropCb={dropData}
-									
 									dragData={workout}
 									className='drag-object'
 								>
@@ -183,8 +174,8 @@ const SingleSplit = () => {
 									moveCb={moveHandler}
 									startCb={handleStart}
 									endCb={handleEnd}
-									dropCb={removeWorkout}
-									className="drag-object"
+									dropCb={deleteWorkout}
+									className='drag-object'
 								>
 									<WorkoutBox workout={workout} />
 								</DragObject>

@@ -49,6 +49,7 @@ const DragObject = ({
 					left: clientCoords.x,
 					transform: 'translate(-50%, -50%)',
 					zIndex: '10',
+					opacity: '0.9',
 				}}
 				onMouseUp={stopDrag}
 			>
@@ -107,7 +108,6 @@ const DragObject = ({
 		const isDroppable = isColliding(e.target);
 
 		for (const dropBox of dropBoxes) {
-			console.log(isDroppable(dropBox.current));
 			if (!isDroppable(dropBox.current)) continue;
 
 			dropCb && dropCb(e, dragInfo);

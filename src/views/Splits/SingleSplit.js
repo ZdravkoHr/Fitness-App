@@ -28,7 +28,7 @@ const SingleSplit = () => {
 	const [allWorkouts, setAllWorkouts] = useState([]);
 	const [showDeleteArea, setShowDeleteArea] = useState(false);
 
-	const transitioningIndexes = useRef([]);
+	const reorderingIndexes = useRef([]);
 
 	const dropBox = useRef();
 	const deleteArea = useRef();
@@ -62,51 +62,93 @@ const SingleSplit = () => {
 		const dragObjects = parent.querySelectorAll('.drag-object');
 		const isOverObject = isColliding(e.target);
 
-		// dragObjects.forEach((object, index) => {
-		// 	if (object === e.target.parentNode) return;
-		// 	if (transitioningIndexes.current.includes(index)) return;
-		// 	console.log(isOverObject(object))
-		// 	if (!isOverObject(object)) return;
+		for (const index in dragObjects) {
+			const object = dragObjects[index];
 
-		// 	const { x: targetX, width: targetWidth } =
-		// 		e.target.getBoundingClientRect();
+			const { x: targetX, width: targetWidth } =
+				e.target.getBoundingClientRect();
+			console.log(object);
+			if (object.className.includes('dragging')) {
+				break;
+			}
+			console.log(1);
 
-		// 	const { x: objX, width: objWidth } = object.getBoundingClientRect();
-		// 	const translateX = getTranslateXValue(object).numValue;
-		// 	if (Math.abs(translateX) > objWidth + 5) return;
-		// 	console.log(translateX, objWidth);
+			if (reorderingIndexes.current[index]) {
+				break;
+			}
 
-		// 	if (
-		// 		targetX <= objX + objWidth / 2 &&
-		// 		targetX + targetWidth > objX + objWidth
-		// 	) {
-		// 		if (Math.abs(translateX + objWidth) > objWidth + 5) return;
-		// 		setSplitWorkouts(w => {
-		// 		const n = [...w];
-		// 		const f = n.shift();
-		// 		n.push(f);
-		// 		transitioningIndexes.current.push(0);
-		// 		return n;
-		// 	})
-		// 		rightShifts.current--;
-		// 	}
+			// console.log(isOverObject(object))
+			// if (!isOverObject(object)) {
+			// 	break;
+			// }
 
-		// 	if (
-		// 		targetX + targetWidth >= objX + objWidth / 2 &&
-		// 		targetX < objX &&
-		// 		targetX > objWidth
-		// 	) {
-		// 		if (Math.abs(translateX - objWidth) > objWidth + 5) return;
-		// 		object.style.transform = `translateX(${translateX - objWidth}px)`;
-		// 		rightShifts.current++;
-		// 	}
-		// });
+			const { x: objX, width: objWidth } = object.getBoundingClientRect();
+
+			const midPoint = targetX + targetWidth / 2;
+			if (midPoint <= objX + objWidth && targetX + targetWidth >= targetX) {
+				console.log('heyo');
+				reorderingIndexes.current[index] = true;
+				setSplitWorkouts(workouts => {
+					const workoutsCopy = [...workouts];
+					const [reorderItem] = workoutsCopy.splice(index, 1);
+					workoutsCopy.splice(index + 1, 0, reorderItem);
+					reorderingIndexes.current[index] = false;
+					return workoutsCopy;
+				});
+				break;
+			}
+
+			console.log(targetX + targetWidth, objX + objWidth / 2, targetX, objX);
+
+			if (targetX + targetWidth >= objX + objWidth / 2 && targetX <= objX) {
+				console.log(object);
+				reorderingIndexes.current[index] = true;
+
+				setSplitWorkouts(workouts => {
+					const workoutsCopy = [...workouts];
+					const [reorderItem] = workoutsCopy.splice(index, 1);
+					workoutsCopy.splice(index - 1, 0, reorderItem);
+					reorderingIndexes.current[index] = false;
+					return workoutsCopy;
+				});
+
+				break;
+			}
+
+			// const translateX = getTranslateXValue(object).numValue;
+			// if (Math.abs(translateX) > objWidth + 5) return;
+			// console.log(translateX, objWidth);
+
+			// if (
+			// 	targetX <= objX + objWidth / 2 &&
+			// 	targetX + targetWidth > objX + objWidth
+			// ) {
+			// 	if (Math.abs(translateX + objWidth) > objWidth + 5) return;
+			// 	setSplitWorkouts(w => {
+			// 	const n = [...w];
+			// 	const f = n.shift();
+			// 	n.push(f);
+			// 	transitioningIndexes.current.push(0);
+			// 	return n;
+			// })
+			// 	rightShifts.current--;
+			// }
+
+			// if (
+			// 	targetX + targetWidth >= objX + objWidth / 2 &&
+			// 	targetX < objX &&
+			// 	targetX > objWidth
+			// ) {
+			// 	if (Math.abs(translateX - objWidth) > objWidth + 5) return;
+			// 	object.style.transform = `translateX(${translateX - objWidth}px)`;
+			// 	rightShifts.current++;
+			// }
+		}
 	};
 	const deleteWorkout = (e, dragInfo) => {
 		const workoutIndex = splitWorkouts.findIndex(
 			workout => workout.sampleId === dragInfo.current.data.sampleId
 		);
-		console.log(splitWorkouts, dragInfo.current.data.sampleId, workoutIndex);
 		const workoutsCopy = [...splitWorkouts];
 		workoutsCopy.splice(workoutIndex, 1);
 		setSplitWorkouts(workoutsCopy);
@@ -114,7 +156,6 @@ const SingleSplit = () => {
 
 	const handleStart = info => {
 		setShowDeleteArea(true);
-		console.log(info);
 		setDragInfo(info);
 	};
 

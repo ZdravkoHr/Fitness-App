@@ -59,22 +59,22 @@ const SingleSplit = () => {
 
 	const moveHandler = (e, { isColliding, dragInfo }) => {
 		const parent = e.target.parentNode.parentNode;
-		const dragObjects = parent.querySelectorAll('.drag-object');
-		const isOverObject = isColliding(e.target);
 
-		for (const index in dragObjects) {
+		const dragObjects = parent.querySelectorAll('.drag-object');
+
+		const isOverObject = isColliding(e.target);
+		for (const index in [...dragObjects]) {
 			const object = dragObjects[index];
 
 			const { x: targetX, width: targetWidth } =
 				e.target.getBoundingClientRect();
-			console.log(object);
+
 			if (object.className.includes('dragging')) {
-				break;
+				continue;
 			}
-			console.log(1);
 
 			if (reorderingIndexes.current[index]) {
-				break;
+				continue;
 			}
 
 			// console.log(isOverObject(object))
@@ -85,8 +85,11 @@ const SingleSplit = () => {
 			const { x: objX, width: objWidth } = object.getBoundingClientRect();
 
 			const midPoint = targetX + targetWidth / 2;
-			if (midPoint <= objX + objWidth && targetX + targetWidth >= targetX) {
-				console.log('heyo');
+
+			if (
+				midPoint <= objX + objWidth &&
+				targetX + targetWidth >= objX + objWidth
+			) {
 				reorderingIndexes.current[index] = true;
 				setSplitWorkouts(workouts => {
 					const workoutsCopy = [...workouts];
@@ -98,10 +101,10 @@ const SingleSplit = () => {
 				break;
 			}
 
-			console.log(targetX + targetWidth, objX + objWidth / 2, targetX, objX);
+			//	console.log(targetX + targetWidth, objX + objWidth / 2, targetX, objX);
 
 			if (targetX + targetWidth >= objX + objWidth / 2 && targetX <= objX) {
-				console.log(object);
+				console.log('right');
 				reorderingIndexes.current[index] = true;
 
 				setSplitWorkouts(workouts => {

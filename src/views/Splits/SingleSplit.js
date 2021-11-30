@@ -58,16 +58,18 @@ const SingleSplit = () => {
 	};
 
 	const moveHandler = (e, { isColliding, dragInfo }) => {
-		const parent = e.target.parentNode.parentNode;
+		//	const parent = e.target.parentNode.parentNode;
+		const dragObjects = dropBox.current.querySelectorAll('.drag-object');
 
-		const dragObjects = parent.querySelectorAll('.drag-object');
-
-		const isOverObject = isColliding(e.target);
 		for (const index in [...dragObjects]) {
 			const object = dragObjects[index];
 
-			const { x: targetX, width: targetWidth } =
-				e.target.getBoundingClientRect();
+			const {
+				x: targetX,
+				width: targetWidth,
+				y: targetY,
+				height: targetHeight,
+			} = e.target.getBoundingClientRect();
 
 			if (object.className.includes('dragging')) {
 				continue;
@@ -77,14 +79,18 @@ const SingleSplit = () => {
 				continue;
 			}
 
-			// console.log(isOverObject(object))
-			// if (!isOverObject(object)) {
-			// 	break;
-			// }
-
-			const { x: objX, width: objWidth } = object.getBoundingClientRect();
+			const {
+				x: objX,
+				width: objWidth,
+				y: objY,
+				height: objHeight,
+			} = object.getBoundingClientRect();
 
 			const midPoint = targetX + targetWidth / 2;
+
+			// y <= bottom
+
+			if (targetY > objY + objHeight) continue;
 
 			if (
 				midPoint <= objX + objWidth &&
@@ -96,12 +102,11 @@ const SingleSplit = () => {
 					const [reorderItem] = workoutsCopy.splice(index, 1);
 					workoutsCopy.splice(index + 1, 0, reorderItem);
 					reorderingIndexes.current[index] = false;
+
 					return workoutsCopy;
 				});
 				break;
 			}
-
-			//	console.log(targetX + targetWidth, objX + objWidth / 2, targetX, objX);
 
 			if (targetX + targetWidth >= objX + objWidth / 2 && targetX <= objX) {
 				console.log('right');
@@ -117,35 +122,6 @@ const SingleSplit = () => {
 
 				break;
 			}
-
-			// const translateX = getTranslateXValue(object).numValue;
-			// if (Math.abs(translateX) > objWidth + 5) return;
-			// console.log(translateX, objWidth);
-
-			// if (
-			// 	targetX <= objX + objWidth / 2 &&
-			// 	targetX + targetWidth > objX + objWidth
-			// ) {
-			// 	if (Math.abs(translateX + objWidth) > objWidth + 5) return;
-			// 	setSplitWorkouts(w => {
-			// 	const n = [...w];
-			// 	const f = n.shift();
-			// 	n.push(f);
-			// 	transitioningIndexes.current.push(0);
-			// 	return n;
-			// })
-			// 	rightShifts.current--;
-			// }
-
-			// if (
-			// 	targetX + targetWidth >= objX + objWidth / 2 &&
-			// 	targetX < objX &&
-			// 	targetX > objWidth
-			// ) {
-			// 	if (Math.abs(translateX - objWidth) > objWidth + 5) return;
-			// 	object.style.transform = `translateX(${translateX - objWidth}px)`;
-			// 	rightShifts.current++;
-			// }
 		}
 	};
 	const deleteWorkout = (e, dragInfo) => {

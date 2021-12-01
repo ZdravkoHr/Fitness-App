@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import uuid from 'react-uuid';
+import FakeItem from './FakeItem';
 
 const DragObject = ({
 	dropBoxes,
@@ -13,9 +15,11 @@ const DragObject = ({
 }) => {
 	const initDragInfo = { item: null, initCoords: null, dragging: false };
 	const dragInfo = useRef({ ...initDragInfo });
-	const [showFake, setShowFake] = useState(false);
+	const dragObject = useRef();
+	const fakeId = useRef(uuid());
+
 	const [clientCoords, setClientCoords] = useState({});
-	const [itemClass, setItemClass] = useState(className);
+	const [dragging, setDragging] = useState(false);
 
 	const isColliding = item => {
 		return item2 => {
@@ -40,21 +44,21 @@ const DragObject = ({
 		};
 	};
 
-	const FakeItem = () => {
+	const renderFakeItem = () => {
 		return (
-			<div
-				style={{
-					position: 'absolute',
-					top: clientCoords.y,
-					left: clientCoords.x,
-					transform: 'translate(-50%, -50%)',
-					zIndex: '10',
-					opacity: '0.9',
-				}}
+			<FakeItem
+				dragging={dragging}
+				x={clientCoords.x}
+				y={clientCoords.y}
+				id={fakeId.current}
+				onMouseDown={e => startDragging(e, dragData)}
+				onTouchStart={e => startDragging(e, dragData, true)}
+				onTouchMove={e => moveDraggableObject(e, true)}
 				onMouseUp={stopDrag}
+				onTouchEnd={stopDrag}
 			>
 				{children}
-			</div>
+			</FakeItem>
 		);
 	};
 
@@ -69,8 +73,7 @@ const DragObject = ({
 
 	const startDragging = (e, data, isTouchEvent) => {
 		e.preventDefault();
-
-		setShowFake(true);
+		setDragging(true);
 		let coords;
 
 		if (isTouchEvent) {
@@ -90,6 +93,7 @@ const DragObject = ({
 			initCoords: coords,
 			dragging: true,
 		};
+		dragObject.current.classList.add('dragging');
 
 		setClientCoords({ x: e.clientX, y: e.clientY });
 
@@ -114,26 +118,22 @@ const DragObject = ({
 			break;
 		}
 
+		setDragging(false);
+		dragObject.current.classList.remove('dragging');
 		endCb && endCb(e);
 		clearDragElement();
 		document.body.removeEventListener('mouseleave', clearDragElement);
-		setShowFake(false);
 	};
 
-	useEffect(() => {
-		const dragClass = dragInfo.current.dragging ? 'dragging ' : '';
-		setItemClass(dragClass + className);
-	}, [showFake]);
+	// useEffect(() => {
+	// 	const dragClass = dragInfo.current.dragging ? 'dragging ' : '';
+	// 	setItemClass(dragClass + className);
+	// }, [showFake]);
 
 	return (
 		<>
-			{showFake && FakeItem()}
-			<div
-				onMouseDown={e => startDragging(e, dragData)}
-				onTouchStart={e => startDragging(e, dragData, true)}
-				onTouchMove={e => moveDraggableObject(e, true)}
-				className={itemClass}
-			>
+			<div className={className} ref={dragObject}>
+				{renderFakeItem()}
 				{children}
 			</div>
 		</>

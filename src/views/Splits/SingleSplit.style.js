@@ -15,9 +15,14 @@ const SingleSplitEl = styled.main`
 		display: flex;
 		flex-wrap: wrap;
 		align-items: flex-start;
+		position: relative;
+
+		& > *:not(.dragging) {
+			position: relative;
+		}
 	}
 
-	.split-workouts-field .dragging {
+	.split-workouts-field .dragging > *:not(.fake) {
 		opacity: 0;
 	}
 

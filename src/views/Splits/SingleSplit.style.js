@@ -17,14 +17,14 @@ const SingleSplitEl = styled.main`
 		align-items: flex-start;
 		position: relative;
 
-		& > *:not(.dragging) {
+		.drag-object {
 			position: relative;
 		}
 	}
 
-	.split-workouts-field .dragging > *:not(.fake) {
+	/* .split-workouts-field .dragging > *:not(.fake) {
 		opacity: 0;
-	}
+	} */
 
 	.delete-area {
 		position: fixed;

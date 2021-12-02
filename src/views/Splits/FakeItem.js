@@ -5,12 +5,14 @@ const FakeItem = ({ x, y, dragging, id, children, ...rest }) => {
 	const [initCoords, setInitCoords] = useState({});
 
 	const getStyle = () => {
-		const newX = x - initCoords.x;
+		console.log(x, initCoords.x);
+		const newX = x - initCoords.x - initCoords.width / 2;
 		const newY = y - initCoords.y - initCoords.height / 2;
 
 		return {
 			transform: `translate(${newX}px, ${newY}px)`,
 			opacity: '0.9',
+			zIndex: '11',
 		};
 	};
 

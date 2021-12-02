@@ -109,7 +109,6 @@ const SingleSplit = () => {
 			}
 
 			if (targetX + targetWidth >= objX + objWidth / 2 && targetX <= objX) {
-				console.log('right');
 				reorderingIndexes.current[index] = true;
 
 				setSplitWorkouts(workouts => {
@@ -151,7 +150,6 @@ const SingleSplit = () => {
 		document.addEventListener(
 			'touchstart',
 			e => {
-				console.log('preventing');
 				e.preventDefault();
 			},
 			{ passive: false }
@@ -169,13 +167,14 @@ const SingleSplit = () => {
 			<div className='split-info'>
 				<div className='workouts-sequence'>
 					<div className='all-workouts-field'>
-						{allWorkouts.map(workout => {
+						{allWorkouts.map((workout, index) => {
 							return (
 								<DragObject
 									key={workout.id}
 									dropBoxes={[dropBox]}
 									dropCb={dropData}
 									dragData={workout}
+									index={index}
 									className='drag-object'
 								>
 									<WorkoutBox workout={workout} />
@@ -185,10 +184,11 @@ const SingleSplit = () => {
 					</div>
 
 					<div className='split-workouts-field' ref={dropBox}>
-						{splitWorkouts.map(workout => {
+						{splitWorkouts.map((workout, index) => {
 							return (
 								<DragObject
 									key={workout.sampleId}
+									index={index}
 									dragData={workout}
 									dropBoxes={[deleteArea]}
 									moveCb={moveHandler}

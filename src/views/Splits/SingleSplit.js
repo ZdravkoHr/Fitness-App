@@ -89,7 +89,6 @@ const SingleSplit = () => {
 			const midPoint = targetX + targetWidth / 2;
 
 			// y <= bottom
-
 			if (targetY > objY + objHeight) continue;
 
 			if (
@@ -111,6 +110,8 @@ const SingleSplit = () => {
 			if (targetX + targetWidth >= objX + objWidth / 2 && targetX <= objX) {
 				reorderingIndexes.current[index] = true;
 
+				dragInfo.current.initCoords.x =
+					targetX + getTranslateXValue(e.target).numValue;
 				setSplitWorkouts(workouts => {
 					const workoutsCopy = [...workouts];
 					const [reorderItem] = workoutsCopy.splice(index, 1);

@@ -20,6 +20,11 @@ const SingleSplitEl = styled.main`
 		.drag-object {
 			position: relative;
 		}
+
+		.dragging {
+			opacity: 0.9;
+			z-index: 11;
+		}
 	}
 
 	/* .split-workouts-field .dragging > *:not(.fake) {

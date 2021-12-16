@@ -21,6 +21,7 @@ const DragObject = ({
 	const fakeId = useRef(uuid());
 
 	const [prevClientCoords, setPrevClientCoords] = useState({});
+	const [styles, setStyles] = useState({});
 	const [clientCoords, setClientCoords] = useState({});
 	const [moveSource, setMoveSource] = useState(null);
 	const [dragging, setDragging] = useState(false);
@@ -87,35 +88,44 @@ const DragObject = ({
 		document.body.removeEventListener('mouseleave', clearDragElement);
 	};
 
-	const getStyles = () => {
-		if (!dragging) return;
-		const { numValue } = getTranslateXValue(dragObject.current);
-		const prevVal = prevClientCoords.x || initCoords.x;
-		const newX = clientCoords.x;
-		const newY = clientCoords.y - initCoords.y - initCoords.height / 2;
-		//console.log(prevClientCoords, prevVal, clientCoords.x - prevVal);
-		return {
-			transform: `translate(${
-				numValue + clientCoords.x - prevVal
-			}px, ${newY}px)`,
-			opacity: '0.9',
-			zIndex: '11',
-		};
-	};
+	// const getStyles = () => {
+	// 	if (!dragging) return;
+	// 	const { numValue } = getTranslateXValue(dragObject.current);
+	// 	const prevVal = prevClientCoords.x || initCoords.x;
+
+	// 	const newX = clientCoords.x;
+	// 	const newY = clientCoords.y - initCoords.y - initCoords.height / 2;
+	// 	console.log(newX, newY);
+	// 	return;
+	// 	//console.log(prevClientCoords, prevVal, clientCoords.x - prevVal);
+	// 	return {
+	// 		transform: `translate(${
+	// 			numValue + clientCoords.x - prevVal
+	// 		}px, ${newY}px)`,
+	// 		opacity: '0.9',
+	// 		zIndex: '11',
+	// 	};
+	// };
+
+	// const getNewCoords = () => {
+	// 	const { numValue } = getTranslateXValue(dragObject.current);
+	// 	const prevVal = prevClientCoords.x || initCoords.x;
+
+	// 	const newX = clientCoords.x;
+	// 	const newY = clientCoords.y - initCoords.y - initCoords.height / 2;
+	// };
 
 	const startDragging = (e, data, isTouchEvent) => {
 		e.preventDefault();
 		setDragging(true);
-		let coords;
-
-		setMoveSource(isTouchEvent ? e.touches[0] : e);
+		let coords, source;
 
 		if (isTouchEvent) {
 			coords = { x: e.touches[0].clientX, y: e.touches[0].clientY };
 		} else {
 			coords = {
-				x: e.target.getBoundingClientRect().x,
-				y: e.target.getBoundingClientRect().y,
+				x: e.clientX,
+				y: e.clientY,
 			};
 
 			document.addEventListener('mousemove', moveDraggableObject);
@@ -126,6 +136,7 @@ const DragObject = ({
 			item: e.target,
 			initCoords: coords,
 			dragging: true,
+			source,
 		};
 		dragObject.current.classList.add('dragging');
 
@@ -139,16 +150,37 @@ const DragObject = ({
 		if (!dragInfo.current.dragging) return;
 		//const source = isTouchEvent ? e.touches[0] : e;
 		//console.log('updating', { ...clientCoords });
+		//console.log('dragging');
+		//setPrevClientCoords({ ...clientCoords });
 
-		setPrevClientCoords({ ...clientCoords });
+		setMoveSource(isTouchEvent ? e.touches[0] : e);
+		setPrevClientCoords(() => ({ ...clientCoords }));
 
 		moveCb && moveCb(e, { isColliding, dragInfo });
 	};
 
 	useEffect(() => {
+		if (!dragInfo.current.item) return;
+		const newX = clientCoords.x - dragInfo.current.initCoords.x;
+		const newY = clientCoords.y - dragInfo.current.initCoords.y;
+
+		dragInfo.current.item.style.transform = `translate(${newX}px, ${newY}px)`;
+		//dragInfo.current.item.style.opacity = '0.9';
+		// setStyles(() => {
+		// 	return {
+		// 		// transform: `translate(${
+		// 		// 	numValue + clientCoords.x - prevVal
+		// 		// }px, ${newY}px)`,
+		// 		opacity: '0.9',
+		// 		zIndex: '11',
+		// 	};
+		// });
+	}, [clientCoords]);
+
+	useEffect(() => {
 		if (!moveSource) return;
-		console.log(prevClientCoords);
-		setClientCoords({ x: moveSource.clientX, y: moveSource.clientY });
+		const { clientX: x, clientY: y } = moveSource;
+		setClientCoords(() => ({ x, y }));
 	}, [prevClientCoords]);
 
 	const stopDrag = e => {
@@ -168,14 +200,9 @@ const DragObject = ({
 		document.body.removeEventListener('mouseleave', clearDragElement);
 	};
 
-	useEffect(() => {
-		setInitCoords(dragObject.current.getBoundingClientRect());
-	}, [index]);
-
 	// useEffect(() => {
-	// 	const dragClass = dragInfo.current.dragging ? 'dragging ' : '';
-	// 	setItemClass(dragClass + className);
-	// }, [showFake]);
+	// 	setInitCoords(dragObject.current.getBoundingClientRect());
+	// }, [index]);
 
 	return (
 		<>
@@ -187,7 +214,6 @@ const DragObject = ({
 				onTouchMove={e => moveDraggableObject(e, true)}
 				onMouseUp={stopDrag}
 				onTouchEnd={stopDrag}
-				style={getStyles()}
 			>
 				{/* {renderFakeItem()} */}
 				{children}

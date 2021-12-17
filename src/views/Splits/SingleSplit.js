@@ -4,19 +4,31 @@ import uuid from 'react-uuid';
 import SingleSplitEl from './SingleSplit.style';
 import { DragObject } from './drag-react';
 import WorkoutBox from 'components/Splits/WorkoutBox';
+import FakeItem from './FakeItem';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { useSelector } from 'react-redux';
-import { workoutsSelector } from 'store';
+import { workoutsSelector, dragSelector } from 'store';
 
 const SingleSplit = () => {
 	const { action } = useParams();
 	const rightShifts = useRef(0);
 
+	const [isDragging, setIsDragging] = useState(false);
 	const [dragInfo, setDragInfo] = useState({});
 
 	const {
 		appData: { workouts },
 	} = useSelector(workoutsSelector);
+
+	const {
+		dragging,
+		initCoords,
+		clientCoords,
+
+		item,
+		data: dragData,
+		dragID,
+	} = useSelector(dragSelector);
 
 	const restObj = {
 		name: 'rest',
@@ -26,6 +38,7 @@ const SingleSplit = () => {
 
 	const [splitWorkouts, setSplitWorkouts] = useState([]);
 	const [allWorkouts, setAllWorkouts] = useState([]);
+	//const [clientCoords, setClientCoords] = useState({});
 	const [showDeleteArea, setShowDeleteArea] = useState(false);
 
 	const reorderingIndexes = useRef([]);
@@ -57,8 +70,10 @@ const SingleSplit = () => {
 		return { pxValue, numValue };
 	};
 
-	const moveHandler = (e, { isColliding, dragInfo }) => {
+	const moveHandler = (e, { isColliding, dragInfo, clientCoords }) => {
 		//	const parent = e.target.parentNode.parentNode;
+		//setClientCoords(clientCoords);
+		setDragInfo(dragInfo.current);
 		const dragObjects = dropBox.current.querySelectorAll('.drag-object');
 
 		for (const index in [...dragObjects]) {
@@ -91,23 +106,24 @@ const SingleSplit = () => {
 			// y <= bottom
 			if (targetY > objY + objHeight) continue;
 
-			if (
-				midPoint <= objX + objWidth &&
-				targetX + targetWidth >= objX + objWidth
-			) {
-				reorderingIndexes.current[index] = true;
-				setSplitWorkouts(workouts => {
-					const workoutsCopy = [...workouts];
-					const [reorderItem] = workoutsCopy.splice(index, 1);
-					workoutsCopy.splice(index + 1, 0, reorderItem);
-					reorderingIndexes.current[index] = false;
+			// if (
+			// 	midPoint <= objX + objWidth &&
+			// 	targetX + targetWidth >= objX + objWidth
+			// ) {
+			// 	reorderingIndexes.current[index] = true;
+			// 	setSplitWorkouts(workouts => {
+			// 		const workoutsCopy = [...workouts];
+			// 		const [reorderItem] = workoutsCopy.splice(index, 1);
+			// 		workoutsCopy.splice(index + 1, 0, reorderItem);
+			// 		reorderingIndexes.current[index] = false;
 
-					return workoutsCopy;
-				});
-				break;
-			}
+			// 		return workoutsCopy;
+			// 	});
+			// 	break;
+			// }
 
 			if (targetX + targetWidth >= objX + objWidth / 2 && targetX <= objX) {
+				console.log(object);
 				reorderingIndexes.current[index] = true;
 
 				dragInfo.current.initCoords.x =
@@ -136,10 +152,13 @@ const SingleSplit = () => {
 	const handleStart = info => {
 		setShowDeleteArea(true);
 		setDragInfo(info);
+		setIsDragging(true);
 	};
 
 	const handleEnd = () => {
 		setShowDeleteArea(false);
+		setIsDragging(false);
+
 		setDragInfo({});
 	};
 
@@ -157,12 +176,21 @@ const SingleSplit = () => {
 		);
 	}, []);
 
+	useEffect(() => {
+		console.log(dragging);
+	}, [dragging]);
+
 	return (
 		<SingleSplitEl className='container single-split'>
 			<div className='title'>
 				<h1>{action === 'add' ? 'Add a new split' : 'Edit your split'}</h1>
 			</div>
 
+			{dragging && (
+				<FakeItem dragInfo={dragInfo}>
+					{<WorkoutBox workout={dragData} />}
+				</FakeItem>
+			)}
 			{/* <WorkoutBox workout={dragInfo}/> */}
 
 			<div className='split-info'>

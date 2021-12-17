@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { dragSelector } from 'store';
+import { update } from 'store/slices/drag';
 import uuid from 'react-uuid';
-// import FakeItem from './FakeItem';
+import FakeItem from './FakeItem';
 
 const DragObject = ({
 	dropBoxes,
@@ -14,18 +17,17 @@ const DragObject = ({
 	index,
 	...rest
 }) => {
-	const initDragInfo = { item: null, initCoords: null, dragging: false };
+	const { dragging, initCoords, clientCoords, dragID, data } =
+		useSelector(dragSelector);
 
-	const dragInfo = useRef({ ...initDragInfo });
+	const id = uuid();
+
+	const dispatch = useDispatch();
 	const dragObject = useRef();
-	const fakeId = useRef(uuid());
 
-	const [prevClientCoords, setPrevClientCoords] = useState({});
-	const [styles, setStyles] = useState({});
-	const [clientCoords, setClientCoords] = useState({});
-	const [moveSource, setMoveSource] = useState(null);
-	const [dragging, setDragging] = useState(false);
-	const [initCoords, setInitCoords] = useState({});
+	const updateState = state => {
+		dispatch(update(state));
+	};
 
 	const isColliding = item => {
 		return item2 => {
@@ -80,44 +82,19 @@ const DragObject = ({
 	// };
 
 	const clearDragElement = () => {
-		if (!dragInfo.current.item) return;
+		if (!dragging) return;
 
-		dragInfo.current.item.style.transform = `translate(0, 0)`;
-		dragInfo.current.dragging = false;
+		//dragRef.current.style.transform = `translate(0, 0)`;
+		updateState({ dragging: false });
+
 		document.removeEventListener('mousemove', moveDraggableObject);
 		document.body.removeEventListener('mouseleave', clearDragElement);
 	};
 
-	// const getStyles = () => {
-	// 	if (!dragging) return;
-	// 	const { numValue } = getTranslateXValue(dragObject.current);
-	// 	const prevVal = prevClientCoords.x || initCoords.x;
-
-	// 	const newX = clientCoords.x;
-	// 	const newY = clientCoords.y - initCoords.y - initCoords.height / 2;
-	// 	console.log(newX, newY);
-	// 	return;
-	// 	//console.log(prevClientCoords, prevVal, clientCoords.x - prevVal);
-	// 	return {
-	// 		transform: `translate(${
-	// 			numValue + clientCoords.x - prevVal
-	// 		}px, ${newY}px)`,
-	// 		opacity: '0.9',
-	// 		zIndex: '11',
-	// 	};
-	// };
-
-	// const getNewCoords = () => {
-	// 	const { numValue } = getTranslateXValue(dragObject.current);
-	// 	const prevVal = prevClientCoords.x || initCoords.x;
-
-	// 	const newX = clientCoords.x;
-	// 	const newY = clientCoords.y - initCoords.y - initCoords.height / 2;
-	// };
-
 	const startDragging = (e, data, isTouchEvent) => {
 		e.preventDefault();
-		setDragging(true);
+		updateState({ dragging: true, dragID: id, data: dragData });
+
 		let coords, source;
 
 		if (isTouchEvent) {
@@ -131,57 +108,46 @@ const DragObject = ({
 			document.addEventListener('mousemove', moveDraggableObject);
 		}
 
-		dragInfo.current = {
-			data,
-			item: e.target,
-			initCoords: coords,
-			dragging: true,
-			source,
-		};
 		dragObject.current.classList.add('dragging');
 
-		setClientCoords({ x: e.clientX, y: e.clientY });
+		const newCoords = { x: e.clientX, y: e.clientY };
+
+		updateState({ initCoords: newCoords });
 
 		document.body.addEventListener('mouseleave', clearDragElement);
-		startCb && startCb(dragInfo.current);
+		startCb && startCb();
 	};
 
 	const moveDraggableObject = (e, isTouchEvent) => {
-		if (!dragInfo.current.dragging) return;
+		if (dragging) return;
 		//const source = isTouchEvent ? e.touches[0] : e;
 		//console.log('updating', { ...clientCoords });
 		//console.log('dragging');
 		//setPrevClientCoords({ ...clientCoords });
 
-		setMoveSource(isTouchEvent ? e.touches[0] : e);
-		setPrevClientCoords(() => ({ ...clientCoords }));
+		const source = isTouchEvent ? e.touches[0] : e;
+		//	updateState({ moveSource: newSource });
 
-		moveCb && moveCb(e, { isColliding, dragInfo });
+		const newCoords = { x: source.clientX, y: source.clientY };
+
+		updateState({ clientCoords: newCoords });
+
+		moveCb && moveCb(e, { isColliding });
 	};
 
-	useEffect(() => {
-		if (!dragInfo.current.item) return;
-		const newX = clientCoords.x - dragInfo.current.initCoords.x;
-		const newY = clientCoords.y - dragInfo.current.initCoords.y;
+	// useEffect(() => {
+	// 	if (!item) return;
+	// 	const newX = clientCoords.x - dragInfo.current.initCoords.x;
+	// 	const newY = clientCoords.y - dragInfo.current.initCoords.y;
 
-		dragInfo.current.item.style.transform = `translate(${newX}px, ${newY}px)`;
-		//dragInfo.current.item.style.opacity = '0.9';
-		// setStyles(() => {
-		// 	return {
-		// 		// transform: `translate(${
-		// 		// 	numValue + clientCoords.x - prevVal
-		// 		// }px, ${newY}px)`,
-		// 		opacity: '0.9',
-		// 		zIndex: '11',
-		// 	};
-		// });
-	}, [clientCoords]);
+	// 	//dragInfo.current.item.style.transform = `translate(${newX}px, ${newY}px)`;
+	// }, [clientCoords]);
 
-	useEffect(() => {
-		if (!moveSource) return;
-		const { clientX: x, clientY: y } = moveSource;
-		setClientCoords(() => ({ x, y }));
-	}, [prevClientCoords]);
+	// useEffect(() => {
+	// 	if (!moveSource) return;
+	// 	const { clientX: x, clientY: y } = moveSource;
+	// 	setClientCoords(() => ({ x, y }));
+	// }, [prevClientCoords]);
 
 	const stopDrag = e => {
 		const isDroppable = isColliding(e.target);
@@ -189,11 +155,12 @@ const DragObject = ({
 		for (const dropBox of dropBoxes) {
 			if (!isDroppable(dropBox.current)) continue;
 
-			dropCb && dropCb(e, dragInfo);
+			dropCb && dropCb(e);
 			break;
 		}
 
-		setDragging(false);
+		updateState({ dragging: false });
+
 		dragObject.current.classList.remove('dragging');
 		endCb && endCb(e);
 		clearDragElement();
@@ -214,6 +181,7 @@ const DragObject = ({
 				onTouchMove={e => moveDraggableObject(e, true)}
 				onMouseUp={stopDrag}
 				onTouchEnd={stopDrag}
+				id={id}
 			>
 				{/* {renderFakeItem()} */}
 				{children}

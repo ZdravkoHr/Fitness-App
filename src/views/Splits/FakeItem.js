@@ -1,15 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { updateFake } from 'store/slices/drag';
 import { dragSelector } from 'store';
 import Item from './FakeItem.style';
 
-const FakeItem = ({
-	dragInfo,
-
-	children,
-	...rest
-}) => {
+const FakeItem = ({ test, children, ...rest }) => {
 	const { clientCoords, initCoords, dragID } = useSelector(dragSelector);
+	const dispatch = useDispatch();
 	const fakeRef = useRef();
 	const [startCoords, setStartCoords] = useState({});
 	const [loading, setLoading] = useState(true);
@@ -18,9 +15,16 @@ const FakeItem = ({
 	useEffect(() => {
 		const dragObject = document.getElementById(dragID);
 		const { x: objX, y: objY } = dragObject.getBoundingClientRect();
-		const { x: fakeX, y: fakeY } = fakeRef.current.getBoundingClientRect();
+		const {
+			x: fakeX,
+			y: fakeY,
+			width,
+			height,
+		} = fakeRef.current.getBoundingClientRect();
+		const fakeCoords = { x: objX - fakeX, y: objY - fakeY, width, height };
 
-		setStartCoords({ x: objX - fakeX, y: objY - fakeY });
+		setStartCoords(fakeCoords);
+		dispatch(updateFake({ fakeCoords }));
 	}, []);
 
 	useEffect(() => {
@@ -44,6 +48,9 @@ const FakeItem = ({
 			zIndex: '11',
 		};
 
+		test({ x, y });
+
+		dispatch(updateFake({ x, y }));
 		setStyles(newStyles);
 	}, [loading, clientCoords]);
 

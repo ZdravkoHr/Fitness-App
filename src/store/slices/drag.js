@@ -6,6 +6,7 @@ const dragSlice = createSlice({
 		dragging: false,
 		initCoords: {},
 		clientCoords: {},
+		fakeCoords: {},
 		dragID: null,
 		data: null,
 	},
@@ -13,13 +14,16 @@ const dragSlice = createSlice({
 	reducers: {
 		update: (state, { payload }) => {
 			Object.entries(payload).forEach(([key, val]) => {
-				if (key === 'data') console.log(key + ': ', val);
 				state[key] = val;
 			});
+		},
+
+		updateFake: (state, { payload }) => {
+			state.fakeCoords = { ...payload };
 		},
 	},
 });
 
 export default dragSlice.reducer;
 
-export const { update, setItem } = dragSlice.actions;
+export const { update, updateFake } = dragSlice.actions;

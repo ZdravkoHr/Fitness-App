@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { dragSelector } from 'store';
 import Item from './FakeItem.style';
@@ -9,27 +9,52 @@ const FakeItem = ({
 	children,
 	...rest
 }) => {
-	const { clientCoords, initCoords } = useSelector(dragSelector);
+	const { clientCoords, initCoords, dragID } = useSelector(dragSelector);
+	const fakeRef = useRef();
+	const [startCoords, setStartCoords] = useState({});
+	const [loading, setLoading] = useState(true);
+	const [styles, setStyles] = useState({});
 
-	const getStyle = () => {
-		// console.log(x, initCoords.x);
-		// const newX = x - initCoords.x - initCoords.width / 2;
-		// const newY = y - initCoords.y - initCoords.height / 2;
-		console.log(clientCoords, initCoords);
-		const x = clientCoords.x - initCoords.x;
-		const y = clientCoords.y - initCoords.y;
+	useEffect(() => {
+		const dragObject = document.getElementById(dragID);
+		const { x: objX, y: objY } = dragObject.getBoundingClientRect();
+		const { x: fakeX, y: fakeY } = fakeRef.current.getBoundingClientRect();
 
-		console.log(x, y);
+		setStartCoords({ x: objX - fakeX, y: objY - fakeY });
+	}, []);
 
-		return {
+	useEffect(() => {
+		if (startCoords.x) setLoading(false);
+	}, [startCoords]);
+
+	useEffect(() => {
+		if (loading) {
+			setStyles({ opacity: '0' });
+			return;
+		}
+
+		const clientCoordsObj = clientCoords.x ? clientCoords : initCoords;
+
+		const x = startCoords.x + clientCoordsObj.x - initCoords.x;
+		const y = startCoords.y + clientCoordsObj.y - initCoords.y;
+
+		const newStyles = {
 			transform: `translate(${x}px, ${y}px)`,
 			opacity: '0.9',
 			zIndex: '11',
 		};
-	};
+
+		setStyles(newStyles);
+	}, [loading, clientCoords]);
 
 	return (
-		<Item className='fake' style={getStyle()} {...rest}>
+		<Item
+			className='fake'
+			style={styles}
+			ref={fakeRef}
+			id='fake-drag-item'
+			{...rest}
+		>
 			{children}
 		</Item>
 	);

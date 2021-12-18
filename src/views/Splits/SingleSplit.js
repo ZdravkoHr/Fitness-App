@@ -54,8 +54,9 @@ const SingleSplit = () => {
 		);
 	};
 
-	const dropData = (e, dragInfo) => {
-		const newWorkout = { ...dragInfo.current.data, sampleId: uuid() };
+	const dropData = () => {
+		console.log('DRAG DATA: ', dragData);
+		const newWorkout = { ...dragData, sampleId: uuid() };
 		setSplitWorkouts(workouts => [...workouts, newWorkout]);
 	};
 
@@ -200,6 +201,7 @@ const SingleSplit = () => {
 							return (
 								<DragObject
 									key={workout.id}
+									id={workout.id}
 									dropBoxes={[dropBox]}
 									dropCb={dropData}
 									dragData={workout}

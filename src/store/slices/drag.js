@@ -6,7 +6,6 @@ const dragSlice = createSlice({
 		dragging: false,
 		initCoords: {},
 		clientCoords: {},
-
 		dragID: null,
 		data: null,
 	},
@@ -14,9 +13,9 @@ const dragSlice = createSlice({
 	reducers: {
 		update: (state, { payload }) => {
 			Object.entries(payload).forEach(([key, val]) => {
+				if (key === 'data') console.log(key + ': ', val);
 				state[key] = val;
 			});
-			//state = { ...state, ...payload };
 		},
 	},
 });

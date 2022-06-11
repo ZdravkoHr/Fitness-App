@@ -27,7 +27,7 @@ const Sidebar = ({ opened, closeSidebar }) => {
 					<Link to='/workouts'>Workouts</Link>
 				</li>
 				<li>
-					<Link to='/splits'>Splits</Link>
+					<Link to='/diary'>Diary</Link>
 				</li>
 			</ul>
 		</SidebarEl>

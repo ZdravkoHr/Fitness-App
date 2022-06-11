@@ -13,8 +13,8 @@ import Navbar from 'components/Navbar';
 import Sidebar from 'components/Sidebar';
 import Home from 'views/Home';
 import Workouts from 'views/Workouts';
-import Splits from 'views/Splits';
-import SingleSplit from 'views/Splits/SingleSplit';
+import Diary from 'views/Diary';
+
 import Signup from 'views/Signup';
 import Signin from 'views/Signin';
 import ResetPassword from 'views/ResetPassword';
@@ -73,12 +73,10 @@ function App() {
 					<Route path='/workouts' exact>
 						<Workouts />
 					</Route>
-					<Route path='/splits' exact>
-						<Splits />
+					<Route path='/diary' exact>
+						<Diary />
 					</Route>
-					<Route path='/split/:action' exact>
-						<SingleSplit />
-					</Route>
+
 					<Route path='/signin'>
 						<Signin />
 					</Route>

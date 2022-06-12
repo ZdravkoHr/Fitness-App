@@ -1,7 +1,13 @@
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { userSelector } from 'store';
+import { setDiary } from 'store/slices/diary';
 import NotificationBox from 'components/Notifications/NotificationBox';
+import { db } from '../../firebase';
 
 export default function Diary() {
+	const dispatch = useDispatch();
+	const { user } = useSelector(userSelector);
 	const [fileContent, setFileContent] = useState('');
 	const [fail, setFail] = useState(false);
 	const [failMessage, setFailMessage] = useState('');
@@ -14,56 +20,59 @@ export default function Diary() {
 		reader.readAsText(e.target.files[0]);
 	};
 
-	const transformToWorkouts = text => {
-		let workouts = text.split(/-{2,}/g).filter(Boolean);
-		workouts = workouts.map(workout => {
-			let [data, ...exercises] = workout.split('\r\n').filter(Boolean);
-			const parenthesesIndex = data.indexOf('(');
-			const name =
-				parenthesesIndex > -1
-					? data.substring(0, parenthesesIndex).trim()
-					: data;
-			let dateString =
-				parenthesesIndex > -1
-					? data.substring(parenthesesIndex + 1, data.length - 1)
-					: null;
-			dateString = dateString
-				? dateString.replace(/\./g, '-').split('-').reverse().join('-')
-				: dateString;
+	const getExercises = exercises => {
+		return exercises.map(exercise => {
+			const [name, info] = exercise.split(' - ');
+			const sets = info?.split(' | ').map(set => {
+				const xIndex = set.indexOf('x');
+				const reps = xIndex > -1 ? set.substring(0, xIndex) : info;
+				const weight = xIndex > -1 ? set.substring(xIndex + 1) : null;
 
-			exercises = exercises.map(exercise => {
-				const [name, info] = exercise.split(' - ');
-				const sets = info?.split(' | ').map(set => {
-					console.log('set: ', set);
-					const xIndex = set.indexOf('x');
-					const reps = xIndex > -1 ? set.substring(0, xIndex) : info;
-					const weight = xIndex > -1 ? set.substring(xIndex + 1) : null;
-
-					return {
-						reps: parseInt(reps),
-						weight,
-					};
-				});
 				return {
-					name,
-					sets,
+					reps: parseInt(reps),
+					weight,
 				};
 			});
 
+			return { name, sets };
+		});
+	};
+
+	const getWorkouts = workouts => {
+		return workouts.map(workout => {
+			let [data, ...exercises] = workout.split('\r\n').filter(Boolean);
+			const parenthesesIndex = data.indexOf('(');
+			let name = data;
+			let dateString = null;
+			if (parenthesesIndex > -1) {
+				name = data.substring(0, parenthesesIndex).trim();
+				dateString = data.substring(parenthesesIndex + 1, data.length - 1);
+			}
+
+			exercises = getExercises(exercises);
+
 			return {
 				name,
-				date: new Date(dateString),
+				date: dateString,
 				exercises,
 			};
 		});
+	};
 
-		console.log(workouts);
+	const transformToWorkouts = text => {
+		text = '--\r\n' + text;
+		let workouts = text.split(/-{2,}/g).filter(Boolean);
+		return getWorkouts(workouts);
 	};
 
 	const addHandler = () => {
 		try {
 			if (!fileContent) throw new Error('Трябва да качите непразен файл');
-			transformToWorkouts(fileContent);
+			const workouts = transformToWorkouts(fileContent);
+			dispatch(setDiary(workouts));
+			console.log(db.collection('users').doc(user.uid).set);
+			console.log(workouts);
+			db.collection('users').doc(user.uid).set({ n: workouts });
 		} catch (err) {
 			setFail(true);
 

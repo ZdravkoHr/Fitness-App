@@ -4,10 +4,15 @@ import { userSelector } from 'store';
 import { setDiary } from 'store/slices/diary';
 import NotificationBox from 'components/Notifications/NotificationBox';
 import { db } from '../../firebase';
+import { diarySelector } from 'store';
+import DiaryEl from './Diary.style';
+import uuid from 'react-uuid';
 
 export default function Diary() {
 	const dispatch = useDispatch();
 	const { user } = useSelector(userSelector);
+	const { diary } = useSelector(diarySelector);
+
 	const [fileContent, setFileContent] = useState('');
 	const [fail, setFail] = useState(false);
 	const [failMessage, setFailMessage] = useState('');
@@ -31,10 +36,11 @@ export default function Diary() {
 				return {
 					reps: parseInt(reps),
 					weight,
+					id: uuid(),
 				};
 			});
 
-			return { name, sets };
+			return { name, sets, id: uuid() };
 		});
 	};
 
@@ -55,6 +61,7 @@ export default function Diary() {
 				name,
 				date: dateString,
 				exercises,
+				id: uuid(),
 			};
 		});
 	};
@@ -70,9 +77,9 @@ export default function Diary() {
 			if (!fileContent) throw new Error('Трябва да качите непразен файл');
 			const workouts = transformToWorkouts(fileContent);
 			dispatch(setDiary(workouts));
-			console.log(db.collection('users').doc(user.uid).set);
-			console.log(workouts);
-			db.collection('users').doc(user.uid).set({ n: workouts });
+			db.collection('users')
+				.doc(user.uid)
+				.set({ diary: workouts }, { merge: true });
 		} catch (err) {
 			setFail(true);
 
@@ -84,12 +91,51 @@ export default function Diary() {
 	};
 
 	return (
-		<div className='container'>
+		<DiaryEl className='container'>
 			<NotificationBox active={fail} fail={true} text={failMessage} />
 			<input type='file' onChange={read} />
+			<article className='diary-holder'>
+				{diary.map(workout => {
+					const maxSetCount = workout.exercises.reduce((a, b) => {
+						return Math.max(a, b.sets.length);
+					}, 0);
+					return (
+						<div key={workout.id} className='workout'>
+							<div className='workout-name-row'>
+								<h3>{workout.name}</h3>
+								<h4>{workout.date}</h4>
+							</div>
+							<table>
+								<tr>
+									<th className='exercise-name'>Exercise</th>
+									{Array.from({ length: maxSetCount }).map((_, index) => {
+										return <th key={uuid()}>Set {index + 1}</th>;
+									})}
+								</tr>
+								{workout.exercises.map(exercise => {
+									return (
+										<tr>
+											<td className='exercise-name'>{exercise.name}</td>
+											{
+												// [...exercise.sets, ...Array(maxSetCount - exercise.sets.length)].map(set => {
+
+												// })
+
+												exercise.sets.map(set => {
+													return <td key={set.id}>a1</td>;
+												})
+											}
+										</tr>
+									);
+								})}
+							</table>
+						</div>
+					);
+				})}
+			</article>
 			<button className='btn btn-green btn-rounded' onClick={addHandler}>
 				Add Workouts
 			</button>
-		</div>
+		</DiaryEl>
 	);
 }

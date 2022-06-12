@@ -18,6 +18,7 @@ import Diary from 'views/Diary';
 import Signup from 'views/Signup';
 import Signin from 'views/Signin';
 import ResetPassword from 'views/ResetPassword';
+import { setDiary } from 'store/slices/diary';
 
 function App() {
 	const dispatch = useDispatch();
@@ -46,9 +47,16 @@ function App() {
 	const getData = async () => {
 		const snapshot = await db.collection('users').doc(user.uid).get('workouts');
 		const data = snapshot.data();
-		if (!data) return;
-		dispatch(setAppData(data));
-		dispatch(setDbData(data));
+		const { workouts, diary } = data;
+
+		if (workouts) {
+			dispatch(setAppData(workouts));
+			dispatch(setDbData(workouts));
+		}
+
+		if (diary) {
+			dispatch(setDiary(diary));
+		}
 	};
 
 	useEffect(() => {

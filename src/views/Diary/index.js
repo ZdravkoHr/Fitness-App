@@ -46,7 +46,8 @@ export default function Diary() {
 
 	const getWorkouts = workouts => {
 		return workouts.map(workout => {
-			let [data, ...exercises] = workout.split('\r\n').filter(Boolean);
+			let [data, ...exercises] = workout.split('\n\n').filter(Boolean);
+
 			const parenthesesIndex = data.indexOf('(');
 			let name = data;
 			let dateString = null;
@@ -67,8 +68,8 @@ export default function Diary() {
 	};
 
 	const transformToWorkouts = text => {
-		text = '--\r\n' + text;
-		let workouts = text.split(/-{2,}/g).filter(Boolean);
+		let workouts = text.split(/-{2,}\n*/g).filter(Boolean);
+		console.log(workouts);
 		return getWorkouts(workouts);
 	};
 
